@@ -12,18 +12,18 @@ namespace helpers
 namespace tuple
 {
 
-template< typename Target, size_t startIndex = 0, template< typename... > class T, typename... Args >
+template< typename Target, size_t start_index = 0, template< typename... > class T, typename... Args >
 constexpr size_t first_of_type( const T< Args... >& t )
 {      
-    static_assert( startIndex <= sizeof...(Args) + 1, "Start index in invalid" );
-    return details::_first_of_type< Target, startIndex, 0, Args... >();
+    static_assert( start_index <= sizeof...(Args) + 1, "Start index in invalid" );
+    return details::_first_of_type< Target, start_index, 0, Args... >();
 }
 
-template< typename Target, size_t startIndex = 0, template< typename... > class T, typename... Args >
+template< typename Target, size_t start_index = 0, template< typename... > class T, typename... Args >
 constexpr size_t first_of_type( const T< Args... >&& t )
 {
-    static_assert( startIndex <= sizeof...(Args) + 1, "Start index in invalid" );
-    return details::_first_of_type< Target, startIndex, 0, Args... >();
+    static_assert( start_index <= sizeof...(Args) + 1, "Start index in invalid" );
+    return details::_first_of_type< Target, start_index, 0, Args... >();
 }
 
 }
