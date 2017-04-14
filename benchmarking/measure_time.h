@@ -5,10 +5,10 @@
 #include "../../helpers/chrono/type_traits.h"
 #include "../../helpers/functional/type_traits.h"
 
-namespace misc_tools
+namespace helpers
 {
 
-namespace measure_time
+namespace benchmarking
 {
 
 template< typename Duration_Result_Type, typename Func, typename... Args,
@@ -40,8 +40,8 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< Duration_Result
   return std::make_pair( result, std::forward< decltype( return_val ) >( return_val ) );
 }
 
-}
+}// benchmarking
 
-}
+}// helpers
 
 #endif

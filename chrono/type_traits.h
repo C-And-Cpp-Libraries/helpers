@@ -4,9 +4,6 @@
 #include <type_traits>
 #include <chrono>
 
-namespace misc_tools
-{
-
 namespace helpers
 {
 
@@ -19,10 +16,8 @@ struct is_duration : std::false_type{};
 template< typename Rep, typename Period >
 struct is_duration< std::chrono::duration< Rep, Period > > : std::true_type{};
 
-}
+}// chrono
 
-}
-
-}
+}// helpers
 
 #endif

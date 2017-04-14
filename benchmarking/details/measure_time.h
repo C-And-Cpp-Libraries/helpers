@@ -3,10 +3,10 @@
 
 #include <utility>
 
-namespace misc_tools
+namespace helpers
 {
 
-namespace measure_time
+namespace benchmarking
 {
 
 namespace details
@@ -24,9 +24,9 @@ typename std::result_of< Func( Args... ) >::type _exec_func_result( Func&& f, Ar
     return f( std::forward< Args >( args )... );
 }
 
-}
+}// details
 
-}
+}// benchmarking
 
-}
+}// helpers
 #endif
