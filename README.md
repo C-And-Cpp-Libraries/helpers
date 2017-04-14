@@ -55,3 +55,9 @@ Lightweight and simple test framework
 
 * ```TEST_CASE( testname, test_func, test_args... )``` - a wrapper around actual test func, puts ```TEST_RESULT``` into ```TEST_RESULTS_STORAGE``` on test completion. All tests should be executed vie this wrapper.
 * ```TEST_CASE( testname, on_fail_func, test_func, test_args... )``` - same as above, but calls on_fail_func if test fails.
+
+### Mock
+* ```mock_ref< T >``` - mocks reference of type ```T```
+* ```mock_const_ref< T >``` - mocks const reference of type ```T```
+* ```mock_valid_ptr< T >``` - mocks non-null pointer to type ```T```
+* ```mock_valid_const_ptr< T >``` - mocks non-null const pointer to type ```T```
