@@ -3,8 +3,8 @@ A small set of helper functions, tiny frameworks and type traits useful in vario
 
 ## benchmarking
 
-* ```measure_exec_time( testname, THROW, func, args.. ) -> Duration``` - a wrapper around called function, returns elapsed time.
-* ```measure_exec_time( testname, THROW, func, args... ) -> < Duration, RESULT OF FUNC >``` - same as above, but for functions with non-void return values.
+* ```measure_exec_time( func, args.. ) -> Duration``` - a wrapper around called function, returns elapsed time.
+* ```measure_exec_time( func, args... ) -> < Duration, RESULT OF FUNC >``` - same as above, but for functions with non-void return values.
 
 ## chrono
 
