@@ -64,9 +64,10 @@ private:
 };
 
 template< typename T >
-std::shared_ptr< details::type_storage< T > > try_cast( std::shared_ptr< polymorph::base_type_storage >& data )
+std::shared_ptr< details::type_storage< T > > try_cast( const std::shared_ptr< polymorph::base_type_storage >& data )
 {
-    auto data_casted = std::dynamic_pointer_cast< type_storage< T > >( data );
+    auto data_casted = std::dynamic_pointer_cast< type_storage< T > >
+            ( std::const_pointer_cast< polymorph::base_type_storage >( data ) );
     if( !data_casted )
     {
         throw std::bad_cast{};
@@ -119,6 +120,14 @@ template< typename T >
 bool polymorph::check_type() const noexcept
 {
     return empty()? false : ( typeid( T ) == m_data->type_info() );
+}
+
+template< class T >
+polymorph& polymorph::deep_copy( const polymorph& other )
+{
+    auto casted = details::try_cast< T >( other.m_data );
+    m_data = details::type_storage_t< T >::create( casted->get() );
+    return *this;
 }
 
 }// helpers

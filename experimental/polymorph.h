@@ -19,7 +19,7 @@ public:
     polymorph() = default;
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
-    polymorph( T&& t ); // internal data assignment  constructor
+    explicit polymorph( T&& t ); // internal data assignment  constructor
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
     polymorph& operator=( T&& t ); // internal data assignment operator
@@ -28,6 +28,10 @@ public:
     explicit polymorph( polymorph&& other ) noexcept;
     polymorph& operator=( const polymorph& other ) noexcept;
     polymorph& operator=( polymorph&& other )  noexcept;
+
+    // Creates a deep copy of source's data instead of sharing pointer copy
+    template< class T >
+    polymorph& deep_copy( const polymorph& source );
 
     template< class T >
     T& get();
