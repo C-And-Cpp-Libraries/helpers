@@ -61,3 +61,13 @@ Lightweight and simple test framework
 * ```mock_const_ref< T >``` - mocks const reference of type ```T```
 * ```mock_valid_ptr< T >``` - mocks non-null pointer to type ```T```
 * ```mock_valid_const_ptr< T >``` - mocks non-null const pointer to type ```T```
+
+## polymorph
+A header-only type-erasure class similar to boost::any. Employs implicit sharing of data unless ```deep_copy``` is explicitly called.
+
+* ```polymorph& deep_copy<T>( const polymorph& source )``` - perfoms deep copy of the source's underlying data. Throws ```std::invalid _argument``` if source is empty, or ```std::bad_cast``` if template paramerer is not correct.
+* ```(const) T& get<T>()``` - Returns a reference to the underlying data. Throws ```std::bad_cast``` if template paramerer is not correct.
+* ```(const) T& get_unsafe<T>()``` - Returns a reference to the underlying data. No runtime checks are performed, ```static_cast``` is used under the hood.
+* ```bool check_type<T>()``` - Returns ```true``` if the underlying type is of type ```T```, otherwise returns ```false```.
+* ```const type_info& type_info()``` - Returns ```std::type_info``` of the underlying type, or ```typeid(void)``` if empty.
+* ```bool empty()``` - Returns ```true``` if no data is stored, otherwise returns ```false```.
