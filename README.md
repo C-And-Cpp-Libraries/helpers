@@ -1,5 +1,5 @@
 # Helpers
-A small set of helper functions, tiny frameworks and type traits useful in various situations
+A small set of helper functions, classes, tiny frameworks and type traits useful in various situations
 
 ## benchmarking
 
