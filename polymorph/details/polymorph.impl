@@ -125,6 +125,11 @@ bool polymorph::check_type() const noexcept
 template< class T >
 polymorph& polymorph::deep_copy( const polymorph& other )
 {
+    if( other.empty() )
+    {
+        throw std::invalid_argument{ "Source is empty" };
+    }
+
     auto casted = details::try_cast< T >( other.m_data );
     m_data = details::type_storage_t< T >::create( casted->get() );
     return *this;

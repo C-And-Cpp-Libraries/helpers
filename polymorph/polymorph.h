@@ -39,7 +39,7 @@ public:
     template< class T >
     const T& get() const;
 
-    // unsafe get functions use statc_cast, no runtime checks are performed
+    // unsafe get functions use static_cast, no runtime checks are performed
     template< class T >
     T& get_unsafe() noexcept;
 
