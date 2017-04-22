@@ -19,7 +19,7 @@ public:
     polymorph() = default;
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
-    explicit polymorph( T&& t ); // internal data assignment  constructor
+    polymorph( T&& t ); // internal data assignment  constructor
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
     polymorph& operator=( T&& t ); // internal data assignment operator
