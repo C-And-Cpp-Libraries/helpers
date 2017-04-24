@@ -23,8 +23,7 @@ namespace details
 {
 
 template< typename T >
-class type_storage final : public polymorph::base_type_storage,
-        public std::enable_shared_from_this< type_storage< T > >
+class type_storage final : public polymorph::base_type_storage
 {
     using base_type = T;
     using base_unref_type = typename std::remove_reference< T >::type;
@@ -125,6 +124,11 @@ bool polymorph::check_type() const noexcept
 template< class T >
 polymorph& polymorph::deep_copy( const polymorph& other )
 {
+    if( other.empty() )
+    {
+        throw std::invalid_argument{ "Source is empty" };
+    }
+
     auto casted = details::try_cast< T >( other.m_data );
     m_data = details::type_storage_t< T >::create( casted->get() );
     return *this;

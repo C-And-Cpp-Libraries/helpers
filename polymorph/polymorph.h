@@ -19,13 +19,13 @@ public:
     polymorph() = default;
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
-    explicit polymorph( T&& t ); // internal data assignment  constructor
+    polymorph( T&& t ); // internal data assignment  constructor
 
     template< typename T, typename = typename disable_if_polymorph< T >::type >
     polymorph& operator=( T&& t ); // internal data assignment operator
 
-    explicit polymorph( const polymorph& other ) noexcept;
-    explicit polymorph( polymorph&& other ) noexcept;
+    polymorph( const polymorph& other ) noexcept;
+    polymorph( polymorph&& other ) noexcept;
     polymorph& operator=( const polymorph& other ) noexcept;
     polymorph& operator=( polymorph&& other )  noexcept;
 
@@ -39,7 +39,7 @@ public:
     template< class T >
     const T& get() const;
 
-    // unsafe get functions use statc_cast, no runtime checks are performed
+    // unsafe get functions use static_cast, no runtime checks are performed
     template< class T >
     T& get_unsafe() noexcept;
 
