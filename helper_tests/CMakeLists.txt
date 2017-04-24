@@ -15,8 +15,8 @@ set(POLY_SOURCES ../polymorph/polymorph.h
                  ../polymorph/details/polymorph.cpp
                  ../polymorph/details/polymorph.impl)
 
-set(THREAD_POOL_SOURCES ../experimental/thread_pool.h
-                 ../experimental/thread_pool.cpp)
+set(THREAD_POOL_SOURCES ../concurrency/thread_pool.h
+                        ../concurrency/thread_pool.cpp)
 
 add_executable (${PROJECT} ${SOURCES} ${TEST_SOURCES} ${POLY_SOURCES} ${THREAD_POOL_SOURCES})
 target_link_libraries( ${PROJECT} pthread )
