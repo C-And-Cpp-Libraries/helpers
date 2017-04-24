@@ -54,16 +54,13 @@ void test_poly_type()
     TEST_DYNAMIC_ASSERT( p2.get< std::string >() == "p2", "p2.get() string value assert failed" );
 
     p2 = int{ 1 };
-    TEST_DYNAMIC_ASSERT( p1.get< int >() == 1, "p2.get() int value assert failed" );
+    TEST_DYNAMIC_ASSERT( p2.get< int >(), "p2.get() int value assert failed" );
 }
 
-bool run_all_tests()
+void run_all_tests()
 {
     TEST_CASE( "test_poly_ctor_copy_move", test_poly_ctor_copy_move );
     TEST_CASE( "test_poly_type", test_poly_type );
-
-    std::cout<<"poly tests ok\n";
-    return true;
 }
 
 }

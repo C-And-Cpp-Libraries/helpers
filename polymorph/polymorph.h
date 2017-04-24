@@ -24,8 +24,8 @@ public:
     template< typename T, typename = typename disable_if_polymorph< T >::type >
     polymorph& operator=( T&& t ); // internal data assignment operator
 
-    explicit polymorph( const polymorph& other ) noexcept;
-    explicit polymorph( polymorph&& other ) noexcept;
+    polymorph( const polymorph& other ) noexcept;
+    polymorph( polymorph&& other ) noexcept;
     polymorph& operator=( const polymorph& other ) noexcept;
     polymorph& operator=( polymorph&& other )  noexcept;
 
