@@ -15,4 +15,7 @@ set(POLY_SOURCES ../polymorph/polymorph.h
                  ../polymorph/details/polymorph.cpp
                  ../polymorph/details/polymorph.impl)
 
-add_executable (${PROJECT} ${SOURCES} ${TEST_SOURCES} ${POLY_SOURCES})
+set(THREAD_POOL_SOURCES ../experimental/thread_pool.h
+                 ../experimental/thread_pool.cpp)
+
+add_executable (${PROJECT} ${SOURCES} ${TEST_SOURCES} ${POLY_SOURCES} ${THREAD_POOL_SOURCES})
