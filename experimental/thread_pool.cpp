@@ -90,9 +90,9 @@ void thread_pool::schedule_remove_workers( uint32_t number )
 
         clean_removed_workers();
 
-        if( number > m_workers_number )
+        if( number >= m_workers_number )
         {
-            throw std::invalid_argument{ "Number of workers to remove is greater than avalable workers' number" };
+            throw std::invalid_argument{ "Number of workers to remove is greater or equal to the avalable workers' number" };
         }
 
         m_workers_number -= number;

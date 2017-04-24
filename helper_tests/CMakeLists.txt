@@ -19,3 +19,4 @@ set(THREAD_POOL_SOURCES ../experimental/thread_pool.h
                  ../experimental/thread_pool.cpp)
 
 add_executable (${PROJECT} ${SOURCES} ${TEST_SOURCES} ${POLY_SOURCES} ${THREAD_POOL_SOURCES})
+target_link_libraries( ${PROJECT} pthread )
