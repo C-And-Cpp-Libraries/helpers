@@ -1,0 +1,270 @@
+#ifndef _TIME_INFO_TEMPLETE_IMPL_
+#define _TIME_INFO_TEMPLETE_IMPL_
+
+#include "time_ratio.h"
+
+namespace time_info
+{
+
+namespace details
+{
+
+constexpr time_type microsec_to_nsec( time_type count )noexcept{ return count * ratio::micro_ratio_ns; }
+constexpr time_type sec_to_nsec( time_type count )noexcept{ return count * ratio::ns_ratio_sec; }
+constexpr time_type nsec_to_sec( time_type count )noexcept{ return count / ratio::ns_ratio_sec; }
+constexpr time_type nsec_to_microsec( time_type count )noexcept{ return count / ratio::micro_ratio_ns; }
+
+template< time_type tick_cnt, time_type period >
+constexpr time_type ratio() noexcept
+{
+    return ratio::ns_ratio_sec * period / tick_cnt;
+}
+
+template< time_type tick_cnt, time_type period >
+constexpr time_type ratio_count( const time_moment& m, bool epoch = false ) noexcept
+{
+    return ( epoch? m.sec_epoch() : m.jsec() ) * tick_cnt / period + ( ( tick_cnt > 1 )? (m.nsec() / ( ratio::ns_ratio_sec / tick_cnt ) ) : 0 );
+}
+
+// ctors
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >::time_ratio( time_type count ) noexcept :     
+    m_time( details::nsec_to_sec( ratio< tick_cnt, period >() ) * count, 0 ),
+    m_count( count ){}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >::time_ratio( const date_time& dt ) noexcept : 
+    m_time( dt.get_time_moment() ),
+    m_count( ratio_count< tick_cnt, period >( m_time ) ){}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >::time_ratio( const time_moment& tm ) noexcept : 
+    m_time( tm ),
+    m_count( ratio_count< tick_cnt, period >( m_time ) ){}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >::time_ratio( const timeval& tv ) noexcept
+{
+    from_timeval( tv );
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >::time_ratio( const timespec& ts ) noexcept
+{
+    from_timespec( ts );
+}
+
+template< time_type tick_cnt, time_type period >
+template< typename std_duration_type, typename >
+time_ratio< tick_cnt, period >::time_ratio( const std_duration_type& d ) noexcept 
+{
+    from_std_duration( d );
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_num, time_type other_denum >
+time_ratio< tick_cnt, period >::time_ratio( const time_ratio< other_num, other_denum >& other ) noexcept : 
+    m_time( other.m_time ),
+    m_count( ratio_count< tick_cnt, period >( other.m_time ) ){}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_num, time_type other_denum >
+time_ratio< tick_cnt, period >::time_ratio( time_ratio< other_num, other_denum >&& other ) noexcept :
+    m_time( std::move( other.m_time ) ),
+    m_count( ratio_count< tick_cnt, period >( m_time ) ){}
+
+// assignment
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( time_type count ) noexcept
+{
+    m_time.set( details::nsec_to_sec( ratio< tick_cnt, period >() ) * count, 0 );
+    m_count = count;
+    return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const time_moment& tm ) noexcept
+{
+    m_time = tm;
+    m_count = ratio_count< tick_cnt, period >( m_time );
+    return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const date_time& dt ) noexcept
+{
+    m_time = dt.to_time_moment();
+    m_count = ratio_count< tick_cnt, period >( m_time );
+    return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_num, time_type other_denum >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const time_ratio< other_num, other_denum >& other ) noexcept
+{
+    m_time = other.m_time;
+    m_count = ratio_count< tick_cnt, period >( m_time );
+    return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_num, time_type other_denum >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( time_ratio< other_num, other_denum >&& other ) noexcept
+{
+    m_time = std::move( other.m_time );
+    m_count = ratio_count< tick_cnt, period >( m_time );
+    return *this;
+}
+
+// conversions
+template< time_type tick_cnt, time_type period >
+void time_ratio< tick_cnt, period >::from_time_t( time_t time ) noexcept
+{
+    m_time.set_nsec( 0 );
+    m_time.set_sec_epoch( time );
+    m_count = ratio_count< tick_cnt, period >( m_time );
+}
+
+template< time_type tick_cnt, time_type period >
+void time_ratio< tick_cnt, period >::from_timeval( const timeval& time )
+{
+    m_time.set_sec_epoch( time.tv_sec );
+    m_time.set_nsec( details::microsec_to_nsec( time.tv_usec ) );
+    m_count = ratio_count< tick_cnt, period >( m_time );
+}
+
+template< time_type tick_cnt, time_type period >
+void time_ratio< tick_cnt, period >::from_timespec( const timespec& time )
+{    
+    m_time.set_sec_epoch( time.tv_sec );
+    m_time.set_nsec( time.tv_nsec );
+    m_count = ratio_count< tick_cnt, period >( m_time );
+}
+
+template< time_type tick_cnt, time_type period >
+template< typename std_duration_type, typename >
+void time_ratio< tick_cnt, period >::from_std_duration( const std_duration_type& d )
+{
+    using namespace std::chrono;
+
+    m_time.set_sec_epoch( duration_cast< seconds >( d ).count() );
+    m_time.set_nsec( duration_cast< nanoseconds >( d ).count() -
+                     duration_cast< nanoseconds >( seconds{ m_time.sec_epoch() } ).count() );
+
+    m_count = ratio_count< tick_cnt, period >( m_time );
+}
+
+template< time_type tick_cnt, time_type period >
+void time_ratio< tick_cnt, period >::from_nsec_since_epoch()
+{
+    from_std_duration( std::chrono::system_clock::now().time_since_epoch() );
+}
+
+template< time_type tick_cnt, time_type period >
+time_t time_ratio< tick_cnt, period >::to_time_t() const noexcept
+{
+    return m_time.sec_epoch();
+}
+
+template< time_type tick_cnt, time_type period >
+timeval time_ratio< tick_cnt, period >::to_timeval() const noexcept
+{
+    return { ( long )m_time.sec_epoch(), ( long )details::nsec_to_microsec( m_time.nsec() ) };
+}
+
+template< time_type tick_cnt, time_type period >
+timespec time_ratio< tick_cnt, period >::to_timespec() const noexcept
+{
+    return { ( long )m_time.sec_epoch(), ( long )m_time.nsec() };
+}
+
+template< time_type tick_cnt, time_type period >
+template< typename std_duration_type, typename >
+std_duration_type time_ratio< tick_cnt, period >::to_std_duration() const noexcept
+{
+    using namespace std::chrono;
+    return duration_cast< std_duration_type >( seconds{ m_time.sec_epoch() } ) +
+           duration_cast< std_duration_type >( nanoseconds{ m_time.nsec() } );
+}
+
+template< time_type tick_cnt, time_type period >
+time_type time_ratio< tick_cnt, period >::count() const noexcept
+{
+    return m_count;	
+}
+
+template< time_type tick_cnt, time_type period >
+time_type time_ratio< tick_cnt, period >::count_since_epoch() const noexcept
+{
+    return ratio_count< tick_cnt, period >( m_time, true );	
+}
+
+template< time_type tick_cnt, time_type period >
+date_time time_ratio< tick_cnt, period >::to_date_time() const noexcept
+{ 
+    return date_time{ m_time };
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_tick_cnt, time_type other_period >
+bool time_ratio< tick_cnt, period >::operator==( const time_ratio< other_tick_cnt, other_period >& other ) const noexcept
+{ 
+    return other.m_time == m_time;
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_tick_cnt, time_type other_period >
+bool time_ratio< tick_cnt, period >::operator!=( const time_ratio< other_tick_cnt, other_period >& other ) const noexcept
+{ 
+    return other.m_time != m_time;
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_tick_cnt, time_type other_period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator+=( const time_ratio< other_tick_cnt, other_period >& other ) noexcept
+{ 
+    m_time += other.m_time;
+	return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+template< time_type other_tick_cnt, time_type other_period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator-=( const time_ratio< other_tick_cnt, other_period >& other ) noexcept
+{ 
+    m_time -= other.m_time;
+	return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator+=( time_type count ) noexcept
+{ 
+    m_time += time_moment{ count * ratio< tick_cnt, period >() }; 
+	return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator-=( time_type count ) noexcept
+{ 
+    m_time -= time_moment{ count * ratio< tick_cnt, period >() }; 
+	return *this;
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period > operator+( const time_ratio< tick_cnt, period >& l, const time_ratio< tick_cnt, period >& r ) noexcept
+{
+    time_ratio< tick_cnt, period > ti{ l };
+	return ti.operator+=( r );
+}
+
+template< time_type tick_cnt, time_type period >
+time_ratio< tick_cnt, period > operator-(const time_ratio< tick_cnt, period >& l, const time_ratio< tick_cnt, period >& r) noexcept
+{
+    time_ratio< tick_cnt, period > ti{ l };
+	return ti.operator-=( r );
+}
+
+}// details
+
+}// time_info
+
+#endif
