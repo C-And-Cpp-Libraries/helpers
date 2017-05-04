@@ -1,37 +1,31 @@
-﻿#include <array>
+﻿#include <map>
+#include <array>
 #include <stdexcept>
 
 #include "date_time.h"
 
-namespace time_info
+namespace temporal
 {
 
 namespace details
 {
 
 static constexpr time_type epoch_year{ 1970 };
+static constexpr time_type ns_before_sec{ 999999999 };
+static constexpr std::array< uint32_t, 12 > month_days{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-constexpr bool is_leap(time_type year ) noexcept
+constexpr bool is_leap( time_type year ) noexcept
 {
     return ( !( year % 4 ) && ( ( year % 100 ) || !( year % 400 ) ) );
 }
 
-uint32_t days_in_month( time_type month, time_type year )
-{    
-    static std::array< uint32_t, 12 > days_in_month{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-    return( month == date_time::feb && is_leap( year ) )? 
-        days_in_month[ month - 1 ] + 1 : days_in_month[ month - 1 ]; 
+constexpr uint32_t days_in_month( time_type month, time_type year ) noexcept
+{
+    return( month == date_time::feb && is_leap( year ) )?
+        month_days[ month - 1 ] + 1 : month_days[ month - 1 ];
 }
 
 // validations
-void validate_year( time_type year )
-{
-    if( !year )
-    {
-        throw std::invalid_argument{ "Invalid year" };
-    }
-}
-
 void validate_month( time_t month )
 {
     if( ( month < date_time::jan || month > date_time::dec ) )
@@ -81,12 +75,12 @@ void validate_nsec( time_type nsec )
 }
 
 // date calculations
-constexpr int64_t floor_div( int64_t a, int b )
+constexpr int64_t floor_div( int64_t a, int b ) noexcept
 {
     return ( a - ( a < 0 ? b - 1 : 0 ) ) / b;
 }
 
-constexpr int floor_div( int a, int b )
+constexpr int floor_div( int a, int b ) noexcept
 {
     return ( a - ( a < 0 ? b - 1 : 0 ) ) / b;
 }
@@ -102,10 +96,9 @@ struct verbose_date_time
     int64_t nsec{ 0 };
 };
 
-time_type vdate_to_julian_sec( int64_t year, date_time::dt_month month, time_type day, 
-                               time_type hour, time_type min, time_type sec )
-{       
-    validate_year( year );
+time_type vdate_to_julian_sec( int64_t year, date_time::dt_month month, time_type day,
+                               time_type hour, time_type min, time_type sec ) noexcept
+{
     validate_month( month );
     validate_day( day, month, year );
     validate_hour( hour );
@@ -113,23 +106,23 @@ time_type vdate_to_julian_sec( int64_t year, date_time::dt_month month, time_typ
     validate_sec( sec );
 
     int64_t year_fix{ year < 0 ? year + 1 : year };
-   
+
     int64_t a{ floor_div( 14 - month, 12 ) };
     int64_t y{ year_fix + 4800 - a };
     int64_t m{ month + 12 * a - 3 };
 
-    time_type jday =  day + 
-           floor_div( 153 * m + 2, 5 ) + 
-           365 * y + 
-           floor_div( y, 4 ) - 
-           floor_div( y, 100 ) + 
-           floor_div( y, 400 ) - 
+    time_type jday =  day +
+           floor_div( 153 * m + 2, 5 ) +
+           365 * y +
+           floor_div( y, 4 ) -
+           floor_div( y, 100 ) +
+           floor_div( y, 400 ) -
            32045;
 
     return jday * ratio::day_ratio_sec + hour * ratio::hour_ratio_sec + min * ratio::min_ratio_sec + sec;
 }
 
-verbose_date_time julian_sec_to_vdate( time_type julian_sec )
+verbose_date_time julian_sec_to_vdate( time_type julian_sec ) noexcept
 {
     int64_t day = julian_sec / ratio::day_ratio_sec;
     int64_t a{ day + 32044 };
@@ -160,94 +153,148 @@ verbose_date_time julian_sec_to_vdate( time_type julian_sec )
     return vdt;
 }
 
-} // details
+namespace serialize
+{
 
-date_time::date_time( const details::time_moment & tm ) : m_tm( tm ){}
+ enum pattern_type
+ {
+    p_year, p_month, p_day, p_day_of_week, p_hour, p_min, p_sec, p_msec, p_usec, p_nsec
+ };
+
+ static std::map< pattern_type, std::string > pattern_map
+ {
+     { p_year, "Y" },
+     { p_month, "M" },
+     { p_day, "D" },
+     { p_day_of_week, "W" },
+     { p_hour, "h" },
+     { p_min, "m" },
+     { p_sec, "s" },
+     { p_msec, "ms" },
+     { p_usec, "us" },
+     { p_nsec, "ns" }
+ };
+
+ static std::map< date_time::dt_month, std::string > month_names
+ {
+     { date_time::jan, "Jan" },
+     { date_time::feb, "Feb" },
+     { date_time::mar, "Mar" },
+     { date_time::apr, "Apr" },
+     { date_time::may, "May" },
+     { date_time::jun, "Jun" },
+     { date_time::jul, "Jul" },
+     { date_time::aug, "Aug" },
+     { date_time::sep, "Sep" },
+     { date_time::oct, "Oct" },
+     { date_time::nov, "Nov" },
+     { date_time::dec, "Dec" }
+ };
+
+ static std::map< uint, std::string > day_names
+ {
+     { 1, "Mon" },{ 2, "Tue" },{ 3, "Wed" },{ 4, "Thu" },{ 5, "Fri" },{ 6, "Sat" },{ 7, "Sun" }
+ };
+
+
+ void replace_if_exists( pattern_type p, std::string& target, const std::string& source )
+ {
+     const std::string& pattern = pattern_map[ p ];
+
+     auto pos = target.find( pattern );
+     if( pos != std::string::npos )
+     {
+         target.replace( pos, pattern.length(), source );
+     }
+ }
+
+static std::string serialize( verbose_date_time& dtv, int dow, const std::string& pattern ) noexcept
+{
+    int64_t msec{ dtv.nsec / 1000000 };
+    dtv.nsec -= msec * 1000000;
+    int64_t usec{ dtv.nsec / 1000 };
+    dtv.nsec -= usec * 1000;
+
+    std::string result{ pattern };
+    replace_if_exists( p_year, result, std::to_string( dtv.year ) );
+    replace_if_exists( p_month, result, month_names[ ( date_time::dt_month )dtv.month ] );
+    replace_if_exists( p_day, result, std::to_string( dtv.day ) );
+    replace_if_exists( p_day_of_week, result, day_names[ dow ] );
+    replace_if_exists( p_hour, result, std::to_string( dtv.hour ) );
+    replace_if_exists( p_min, result, std::to_string( dtv.min ) );
+    replace_if_exists( p_sec, result, std::to_string( dtv.sec ) );
+    replace_if_exists( p_msec, result, std::to_string( msec ) );
+    replace_if_exists( p_usec, result, std::to_string( usec ) );
+    replace_if_exists( p_nsec, result, std::to_string( dtv.nsec ) );
+
+    return result;
+}
+
+}
+
+}// details
 
 // date_time
 date_time::date_time( int64_t year, dt_month month, time_type day,
                       time_type hour, time_type min, time_type sec, time_type nsec ) :
-    m_tm( details::vdate_to_julian_sec( year, month, day, hour, min, sec ), nsec ){}
+    m_time( details::vdate_to_julian_sec( year, month, day, hour, min, sec ), nsec ){}
 
 bool date_time::is_leap() const noexcept
-{   
-    return details::is_leap( details::julian_sec_to_vdate( m_tm.jsec() ).year );
+{
+    return details::is_leap( details::julian_sec_to_vdate( m_time.jsec() ).year );
 }
 
-time_type date_time::day_of_week() const noexcept
-{    
-    time_type jday = m_tm.jsec() / ratio::day_ratio_sec;
+int date_time::day_of_week() const noexcept
+{
+    time_type jday = m_time.jsec() / ratio::day_ratio_sec;
     return jday >=0 ? ( jday % 7 ) + 1 : ( ( jday + 1 ) % 7 ) + 7;
 }
 
-time_type date_time::year() const noexcept
-{    
-    return details::julian_sec_to_vdate( m_tm.jsec() ).year;
+//year:month:day:hour:min:sec:msec:usec:nsec
+std::string date_time::to_string( const std::string& pattern ) const noexcept
+{
+    static std::string default_pattern{ "W M D h:m:s:ms Y" };
+
+    auto dtv = details::julian_sec_to_vdate( m_time.jsec() );
+    dtv.nsec = nsec();
+
+    return details::serialize::serialize( dtv, day_of_week(),
+                                          pattern.empty()? default_pattern : pattern );
+}
+
+int64_t date_time::year() const noexcept
+{
+    return details::julian_sec_to_vdate( m_time.jsec() ).year;
 }
 
 auto date_time::month() const noexcept -> dt_month
-{  
-    return static_cast< dt_month >( details::julian_sec_to_vdate( m_tm.jsec() ).month );
+{
+    return static_cast< dt_month >( details::julian_sec_to_vdate( m_time.jsec() ).month );
 }
 
 time_type date_time::day() const noexcept
-{   
-    return details::julian_sec_to_vdate( m_tm.jsec() ).day;
+{
+    return details::julian_sec_to_vdate( m_time.jsec() ).day;
 }
 
 time_type date_time::hour() const noexcept
 {
-    return details::julian_sec_to_vdate( m_tm.jsec() ).hour;
+    return details::julian_sec_to_vdate( m_time.jsec() ).hour;
 }
 
 time_type date_time::minute() const noexcept
 {
-    return details::julian_sec_to_vdate( m_tm.jsec() ).min;
+    return details::julian_sec_to_vdate( m_time.jsec() ).min;
 }
 
 time_type date_time::sec() const noexcept
 {
-    return details::julian_sec_to_vdate( m_tm.jsec() ).sec;
+    return details::julian_sec_to_vdate( m_time.jsec() ).sec;
 }
 
 time_type date_time::nsec() const noexcept
 {
-    return m_tm.nsec();
+    return m_time.nsec();
 }
 
-const details::time_moment& date_time::get_time_moment() const noexcept
-{
-    return m_tm;
-}
-
-bool date_time::operator<( const date_time& other ) const noexcept
-{
-    return m_tm < other.m_tm;
-}
-
-bool date_time::operator>( const date_time& other ) const noexcept
-{
-    return m_tm > other.m_tm;
-}
-
-bool date_time::operator<=( const date_time& other ) const noexcept
-{
-    return m_tm <= other.m_tm;
-}
-
-bool date_time::operator>=( const date_time& other ) const noexcept
-{
-    return m_tm >= other.m_tm;
-}
-
-bool date_time::operator==( const date_time& other ) const noexcept
-{
-    return m_tm == other.m_tm;
-}
-
-bool date_time::operator!=( const date_time& other ) const noexcept
-{
-    return m_tm != other.m_tm;
-}
-
-}// time_info
+}// temporal
