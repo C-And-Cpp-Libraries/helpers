@@ -19,7 +19,7 @@ namespace helpers
 namespace concurrency
 {
 
-using task_id = uintmax_t;
+using task_id = uint64_t;
 enum class task_priority{ low, medium, high };
 
 template< typename Result >
@@ -37,8 +37,9 @@ public:
     task( task_id id, const task_priority& priority, std::function< void() >&& func ) :
         m_id( id ), m_priority( priority ), m_task_func( std::move( func ) ){}
 
-    task( task&& other ) : m_id( other.m_id ), m_priority( other.m_priority ), m_task_func( std::move( other.m_task_func) )
+    task( task&& other ) : m_id( other.m_id ), m_priority( other.m_priority )
     {
+        other.m_task_func.swap( m_task_func );
         other.m_id = 0;
         other.m_priority = task_priority::low;
     }
@@ -47,28 +48,31 @@ public:
     {
         m_id = other.m_id;
         m_priority = other.m_priority;
-        m_task_func = std::move( other.m_task_func );
+        other.m_task_func.swap( m_task_func );
 
         other.m_id = 0;
-        other.m_priority = task_priority::low;
 
         return *this;
     }
 
     void run()
     {
+        try
+        {
         m_task_func();
+        }
+        catch( const std::bad_function_call& ){}
     }
 
-    task_id id() const noexcept{ return m_id; }
-    const task_priority& priority() const noexcept{ return m_priority; }
+    task_id id() const { return m_id; }
+    const task_priority& priority() const { return m_priority; }
 
-    inline bool operator<( const task& other ) const noexcept
+    inline bool operator<( const task& other ) const
     {
         return ( m_priority < other.m_priority ) ? true : ( m_id < other.m_id );
     }
 
-    inline bool operator==( const task_id& other_id ) const noexcept{ return m_id == other_id; }
+    inline bool operator==( const task_id& other_id ) const { return m_id == other_id; }
 
 private:
     task_id m_id;
@@ -79,7 +83,7 @@ private:
 class task_queue final : public std::priority_queue< task >
 {
 public:
-    bool erase( task_id id ) noexcept
+    bool erase( task_id id )
     {
         auto it = std::find( c.begin(), c.end(), id );
         if( it != this->c.end() )
@@ -139,7 +143,7 @@ public:
         return id;
     }
 
-    bool erase_task( task_id id ) noexcept
+    bool erase_task( task_id id )
     {
         std::lock_guard< std::mutex >{ m_tasks_mutex };
 
@@ -152,27 +156,24 @@ public:
         return false;
     }
 
-    void clean() noexcept
+    void clean()
     {
         std::lock_guard< std::mutex >{ m_tasks_mutex };
 
-        while( !m_task_queue.empty() )
-        {
-            m_present_task_ids.erase( m_task_queue.top().id() );
-            m_task_queue.pop();
-        }
-
-        task_queue empty;
-        m_task_queue = std::move( empty );
+//        while( !m_task_queue.empty() )
+//        {
+//            m_present_task_ids.erase( m_task_queue.top().id() );
+//            m_task_queue.pop();
+//        }
     }
 
-    size_t total_tasks() const noexcept
+    size_t total_tasks() const
     {
         std::lock_guard< std::mutex >{ m_tasks_mutex };
         return m_present_task_ids.size();
     }
 
-    size_t queued_tasks() const noexcept
+    size_t queued_tasks() const
     {
         std::lock_guard< std::mutex >{ m_tasks_mutex };
         return m_task_queue.size();
@@ -201,31 +202,31 @@ public:
     }
 
 private:
-    task_id next_id() noexcept
+    task_id next_id()
     {
         task_id last_id{  m_present_task_ids.size()?
                         *m_present_task_ids.rbegin() : 0 };
 
-                          return ++last_id;
-                       }
+        return ++last_id;
+    }
 
-        void notify_task_finished( task_id id ) noexcept
+    void notify_task_finished( task_id id )
+    {
+        std::lock_guard< std::mutex >{ m_tasks_mutex };
+        m_present_task_ids.erase( id );
+
+        if( m_present_task_ids.empty() )
         {
-            std::lock_guard< std::mutex >{ m_tasks_mutex };
-            m_present_task_ids.erase( id );
-
-            if( m_present_task_ids.empty() )
-            {
-                m_tasks_status_cv.notify_all();
-            }
+            m_tasks_status_cv.notify_all();
         }
+    }
 
-        private:
-        task_queue m_task_queue;
-        std::set< task_id > m_present_task_ids;
-        mutable std::mutex m_tasks_mutex;
-        mutable std::condition_variable m_tasks_status_cv;
-    };
+private:
+    std::set< task_id > m_present_task_ids;
+    task_queue m_task_queue;
+    mutable std::mutex m_tasks_mutex;
+    mutable std::condition_variable m_tasks_status_cv;
+};
 
 } //details
 
@@ -244,16 +245,16 @@ public:
     add_task( const task_priority& priority, Func&& func, Args&&... args  );
 
     // Remove all pending tasks, those being already executed are not affected
-    void clean_pending_tasks() noexcept;
+    void clean_pending_tasks() ;
 
     // Remove queued task with specific id. Returns false in there is no such task_id in queue
-    bool unqueue_task( task_id id ) noexcept;
+    bool unqueue_task( task_id id ) ;
 
     // Total number of tasks, both pending and being executed
-    size_t total_tasks() const noexcept;
+    size_t total_tasks() const ;
 
     // Number of pending tasks
-    size_t queue_size() const noexcept;
+    size_t queue_size() const ;
 
     // Block until all tasks are finished. On timeout returns false
     template< typename TimeoutType = std::chrono::milliseconds >
@@ -268,10 +269,10 @@ public:
     void schedule_remove_workers( uint32_t number );
 
     // Total number of workers
-    size_t workers_number() const noexcept;
+    size_t workers_number() const ;
 
     // Number of threads scheduled to be removed
-    size_t workers_to_remove() const noexcept;
+    size_t workers_to_remove() const ;
 
     // Static thread_pool created with default constructor
     static thread_pool& get_instance();
@@ -279,7 +280,7 @@ public:
 private:
     void add_worker();
     void clean_removed_workers();
-    bool thread_needs_to_break() noexcept;
+    bool thread_needs_to_break() ;
 
 private:
     std::atomic_bool m_is_running{ true };
@@ -313,12 +314,10 @@ thread_pool::add_task( const task_priority& priority, Func&& func, Args&&... arg
     auto pack_task = std::make_shared< PackTask >( std::bind( std::forward< Func >( func ), std::forward< Args >( args )... ) );
     auto result = pack_task->get_future();
 
-    auto task_func = [ pack_task ]
-    {
-        ( *pack_task )();
-    };
-
-    task_id id{ m_task_handler.add_task( priority, task_func ) };
+    task_id id{ m_task_handler.add_task( priority, [ pack_task ]
+        {
+            ( *pack_task )();
+        } ) };
 
     m_worker_cv.notify_one();
 

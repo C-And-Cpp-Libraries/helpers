@@ -30,22 +30,22 @@ thread_pool::~thread_pool()
     }
 }
 
-void thread_pool::clean_pending_tasks() noexcept
+void thread_pool::clean_pending_tasks()
 {
     m_task_handler.clean();
 }
 
-bool thread_pool::unqueue_task( task_id id ) noexcept
+bool thread_pool::unqueue_task( task_id id )
 {
     return m_task_handler.erase_task( id );
 }
 
-size_t thread_pool::total_tasks() const noexcept
+size_t thread_pool::total_tasks() const
 {
     return m_task_handler.total_tasks();
 }
 
-size_t thread_pool::queue_size() const noexcept
+size_t thread_pool::queue_size() const
 {
     return m_task_handler.queued_tasks();
 }
@@ -100,13 +100,13 @@ void thread_pool::schedule_remove_workers( uint32_t number )
     }
 }
 
-size_t thread_pool::workers_number() const noexcept
+size_t thread_pool::workers_number() const
 {
     std::lock_guard< std::mutex >{ m_workers_mutex };
     return m_workers_number;
 }
 
-size_t thread_pool::workers_to_remove() const noexcept
+size_t thread_pool::workers_to_remove() const
 {
     std::lock_guard< std::mutex >{ m_workers_mutex };
     return m_workers_to_remove;
@@ -174,7 +174,7 @@ void thread_pool::clean_removed_workers()
     m_worker_pool.erase( end, m_worker_pool.end() );
 }
 
-bool thread_pool::thread_needs_to_break() noexcept
+bool thread_pool::thread_needs_to_break()
 {
     if( !m_is_running )
     {

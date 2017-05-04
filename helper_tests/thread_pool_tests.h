@@ -55,10 +55,29 @@ void thread_pool_test()
         TEST_DYNAMIC_ASSERT( workers_number == 2, "Wrong number of workers 3 assert" );
     }
 
-    for( int  i{ 0 }; i < 10; ++i )
+//    for( int  i{ 0 }; i < 10; ++i )
+//    {
+//        results.emplace_back( thread_pool::get_instance().add_task( task_priority::high, task, i ) );
+//    }
+
+    for( task_result< int >& r : results  )
     {
-        results.emplace_back( thread_pool::get_instance().add_task( task_priority::high, task, i ) );
+        try
+        {
+        if( r.second.valid() )
+        {
+            int  i = r.second.get();
+            std::cout <<  i  << std::endl;
+        }
+
     }
+    catch( const std::exception& e )
+    {
+        std::cout << e.what() << std::endl;
+        int  i = 0;
+    }
+    }
+
     }
     catch( const std::exception& e )
     {
