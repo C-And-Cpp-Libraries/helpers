@@ -36,6 +36,10 @@ public:
 
     bool is_leap() const noexcept;
     int day_of_week() const noexcept;
+
+    // Avaliable patterns:
+    // yr - year, mn - month, d - day, w -day of weak, hr - hour,
+    // min - minute, sec - second, ms - millisec, us - microsec, ns - nanosec
     std::string to_string( const std::string& pattern = {} ) const noexcept;
 
     constexpr bool operator<( const date_time& other ) const noexcept
@@ -75,5 +79,11 @@ private:
 };
 
 }// temporal
+
+inline std::ostream& operator<<( std::ostream& os, const temporal::date_time& dt )
+{
+    os << dt.to_string();
+    return os;
+}
 
 #endif

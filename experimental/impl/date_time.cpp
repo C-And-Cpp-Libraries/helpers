@@ -163,13 +163,13 @@ namespace serialize
 
  static std::map< pattern_type, std::string > pattern_map
  {
-     { p_year, "Y" },
-     { p_month, "M" },
-     { p_day, "D" },
-     { p_day_of_week, "W" },
-     { p_hour, "h" },
-     { p_min, "m" },
-     { p_sec, "s" },
+     { p_year, "yr" },
+     { p_month, "mn" },
+     { p_day, "d" },
+     { p_day_of_week, "w" },
+     { p_hour, "hr" },
+     { p_min, "min" },
+     { p_sec, "sec" },
      { p_msec, "ms" },
      { p_usec, "us" },
      { p_nsec, "ns" }
@@ -219,13 +219,13 @@ static std::string serialize( verbose_date_time& dtv, int dow, const std::string
     replace_if_exists( p_year, result, std::to_string( dtv.year ) );
     replace_if_exists( p_month, result, month_names[ ( date_time::dt_month )dtv.month ] );
     replace_if_exists( p_day, result, std::to_string( dtv.day ) );
-    replace_if_exists( p_day_of_week, result, day_names[ dow ] );
     replace_if_exists( p_hour, result, std::to_string( dtv.hour ) );
     replace_if_exists( p_min, result, std::to_string( dtv.min ) );
     replace_if_exists( p_sec, result, std::to_string( dtv.sec ) );
     replace_if_exists( p_msec, result, std::to_string( msec ) );
     replace_if_exists( p_usec, result, std::to_string( usec ) );
     replace_if_exists( p_nsec, result, std::to_string( dtv.nsec ) );
+    replace_if_exists( p_day_of_week, result, day_names[ dow ] );
 
     return result;
 }
@@ -253,7 +253,7 @@ int date_time::day_of_week() const noexcept
 //year:month:day:hour:min:sec:msec:usec:nsec
 std::string date_time::to_string( const std::string& pattern ) const noexcept
 {
-    static std::string default_pattern{ "W M D h:m:s:ms Y" };
+    static std::string default_pattern{ "w mn d hr:min:sec:ms yr" };
 
     auto dtv = details::julian_sec_to_vdate( m_time.jsec() );
     dtv.nsec = nsec();

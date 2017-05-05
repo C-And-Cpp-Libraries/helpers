@@ -163,13 +163,17 @@ void time_ratio_test()
     }
 
     {
-        nanosec_t nnns;
-        nnns.from_nsec_since_epoch();
-        auto nss3 = nnns.to_std_duration< std::chrono::nanoseconds >();
-        time_type ss1 = nnns.count();
-        time_type ss2 = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::system_clock::now().time_since_epoch() ).count();
+        using namespace std::chrono;
+        nanosec_t nnns{ nanosec_t::now() };
+        auto nss3 = nnns.to_std_duration< nanoseconds >( since::epoch );
+        time_type ss1 = nnns.count_since_epoch();
+        time_type ss2 = duration_cast< nanoseconds >( system_clock::now().time_since_epoch() ).count();
         time_type ss3 = nss3.count();
         assert( ( ss2 - ss1) < ratio::ns_ratio_sec && ss1 == ss3 );
+
+        seconds_t s = seconds_t::now();
+        assert( s.count() == details::julian_sec_before_epoch +
+                duration_cast< seconds >( system_clock::now().time_since_epoch() ).count() );
     }
 
     {
@@ -189,5 +193,6 @@ int main()
 {
     time_ratio_test();
     time_moment_date_time_test();
+    
     return 0;
 }

@@ -49,7 +49,7 @@ public:
         m_julian_sec( julian_sec + nsec / ratio::ns_ratio_sec ),
         m_nsec( nsec - ( nsec / ratio::ns_ratio_sec ) * ratio::ns_ratio_sec ){}
 
-    time_moment( const time_moment& other ) = default;
+    constexpr time_moment( const time_moment& other ) = default;
     time_moment( time_moment&& other ) noexcept;
     time_moment& operator=( const time_moment& other ) noexcept;
     time_moment& operator=( time_moment&& other ) noexcept;
