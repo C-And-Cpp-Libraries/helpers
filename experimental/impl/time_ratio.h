@@ -41,7 +41,7 @@ public:
     constexpr explicit time_ratio( const timespec& ts ) noexcept;
 
     template< typename std_duration_type, typename = enable_if_std_duration< std_duration_type > >
-    constexpr explicit time_ratio( const std_duration_type& duration, const since& start_point = since::epoch ) noexcept;
+    constexpr explicit time_ratio( const std_duration_type& duration, const since& start_point ) noexcept;
 
     template< time_type other_tick_cnt, time_type other_sec_period >
     constexpr time_ratio( const time_ratio< other_tick_cnt, other_sec_period >& other ) noexcept;
@@ -66,7 +66,7 @@ public:
     void from_timespec( const timespec& time ) noexcept;
 
     template< typename std_duration_type, typename = enable_if_std_duration< std_duration_type > >
-    void from_std_duration( const std_duration_type& duration, const since& start_point = since::epoch ) noexcept;
+    void from_std_duration( const std_duration_type& duration, const since& start_point ) noexcept;
 
     static curr_time_ratio now() noexcept;
 
@@ -77,7 +77,7 @@ public:
 
     template< typename std_duration_type = std::chrono::nanoseconds,
               typename = enable_if_std_duration< std_duration_type > >
-    constexpr std_duration_type to_std_duration( const since& start_point = since::epoch ) const noexcept;
+    constexpr std_duration_type to_std_duration() const noexcept; // since julian
 
     constexpr time_type count() const noexcept;
     constexpr time_type count_since_epoch() const noexcept;

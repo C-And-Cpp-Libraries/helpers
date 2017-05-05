@@ -34,7 +34,7 @@ constexpr time_moment dur_to_time_moment( const std_duration_type& d, const sinc
 {
     using namespace std::chrono;
     return { duration_cast< seconds >( d ).count() +
-             ( ( start_point == since::julian )? details::julian_sec_before_epoch : 0 ),
+             ( ( start_point == since::epoch )? details::julian_sec_before_epoch : 0 ),
              duration_cast< nanoseconds >( d ).count() % ratio::ns_ratio_sec };
 }
 
@@ -179,7 +179,7 @@ void time_ratio< tick_cnt, period >::from_std_duration( const std_duration_type&
 template< time_type tick_cnt, time_type period >
 auto time_ratio< tick_cnt, period >::now() noexcept -> curr_time_ratio
 {
-    return curr_time_ratio{ dur_to_time_moment( std::chrono::system_clock::now().time_since_epoch(), since::julian ) };
+    return curr_time_ratio{ dur_to_time_moment( std::chrono::system_clock::now().time_since_epoch(), since::epoch ) };
 }
 
 template< time_type tick_cnt, time_type period >
@@ -202,13 +202,11 @@ constexpr timespec time_ratio< tick_cnt, period >::to_timespec() const noexcept
 
 template< time_type tick_cnt, time_type period >
 template< typename std_duration_type, typename >
-constexpr std_duration_type time_ratio< tick_cnt, period >::to_std_duration( const since& start_point ) const noexcept
+constexpr std_duration_type time_ratio< tick_cnt, period >::to_std_duration() const noexcept
 {
     using namespace std::chrono;
-    return duration_cast< std_duration_type >
-            ( seconds{ ( start_point == since::epoch )? m_time.sec_epoch() : m_time.jsec() } ) +
-           duration_cast< std_duration_type >
-            ( nanoseconds{ ( start_point == since::epoch && m_time.sec_epoch() )? m_time.nsec() : 0 } );
+    return duration_cast< std_duration_type >( seconds{ m_time.jsec() } ) +
+           duration_cast< std_duration_type >( nanoseconds{ m_time.nsec() } );
 }
 
 template< time_type tick_cnt, time_type period >

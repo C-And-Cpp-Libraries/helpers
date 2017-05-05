@@ -133,11 +133,11 @@ void time_ratio_test()
         assert(m1.to_timespec().tv_sec == ts.tv_sec && m1.to_timespec().tv_nsec == ts.tv_nsec);
 
         std::chrono::nanoseconds mns{ 999999999 };
-        nanosec_t ns1{ mns };
+        nanosec_t ns1{ mns, since::julian };
         nanosec_t ns2;
-        ns2.from_std_duration( mns );
-        assert( mns == ns1.to_std_duration< std::chrono::nanoseconds >() &&
-                mns == ns2.to_std_duration< std::chrono::nanoseconds >());
+        ns2.from_std_duration( mns, since::julian );
+        assert( mns == ns1.to_std_duration() &&
+                mns == ns2.to_std_duration());
     }
 
     {
@@ -165,11 +165,9 @@ void time_ratio_test()
     {
         using namespace std::chrono;
         nanosec_t nnns{ nanosec_t::now() };
-        auto nss3 = nnns.to_std_duration< nanoseconds >( since::epoch );
         time_type ss1 = nnns.count_since_epoch();
         time_type ss2 = duration_cast< nanoseconds >( system_clock::now().time_since_epoch() ).count();
-        time_type ss3 = nss3.count();
-        assert( ( ss2 - ss1) < ratio::ns_ratio_sec && ss1 == ss3 );
+        assert( ( ss2 - ss1) < ratio::ns_ratio_sec );
 
         seconds_t s = seconds_t::now();
         assert( s.count() == details::julian_sec_before_epoch +
@@ -193,6 +191,6 @@ int main()
 {
     time_ratio_test();
     time_moment_date_time_test();
-    
+
     return 0;
 }
