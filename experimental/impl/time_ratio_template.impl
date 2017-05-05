@@ -205,8 +205,10 @@ template< typename std_duration_type, typename >
 constexpr std_duration_type time_ratio< tick_cnt, period >::to_std_duration( const since& start_point ) const noexcept
 {
     using namespace std::chrono;
-    return duration_cast< std_duration_type >( seconds{ ( start_point == since::epoch )? m_time.sec_epoch() : m_time.jsec() } ) +
-           duration_cast< std_duration_type >( nanoseconds{ m_time.nsec() } );
+    return duration_cast< std_duration_type >
+            ( seconds{ ( start_point == since::epoch )? m_time.sec_epoch() : m_time.jsec() } ) +
+           duration_cast< std_duration_type >
+            ( nanoseconds{ ( start_point == since::epoch && m_time.sec_epoch() )? m_time.nsec() : 0 } );
 }
 
 template< time_type tick_cnt, time_type period >
