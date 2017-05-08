@@ -75,12 +75,8 @@ void validate_nsec( time_type nsec )
 }
 
 // date calculations
-constexpr int64_t floor_div( int64_t a, int b ) noexcept
-{
-    return ( a - ( a < 0 ? b - 1 : 0 ) ) / b;
-}
-
-constexpr int floor_div( int a, int b ) noexcept
+tempalte< typename T, typename = typename std::enable_if< std::is_integral< T >::value >::type >
+constexpr T floor_div( T a, int b ) noexcept
 {
     return ( a - ( a < 0 ? b - 1 : 0 ) ) / b;
 }
