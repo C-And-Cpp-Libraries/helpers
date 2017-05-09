@@ -93,18 +93,7 @@ constexpr time_ratio< tick_cnt, period >::time_ratio( time_ratio< other_num, oth
 template< time_type tick_cnt, time_type period >
 time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( time_type count ) noexcept
 {
-    time_type sec = ( count * period ) / tick_cnt;
-    time_type nsec{ 0 };
-
-    if( !( period / tick_cnt ) )
-    {
-        count -= ( sec * tick_cnt ) / period;
-        nsec = ( count * period * ratio::ns_ratio_sec ) / tick_cnt;
-    }
-
-    m_time.set_jsec( sec );
-    m_time.set_nsec( nsec );
-
+    m_time = cnt_to_time_moment< tick_cnt, period >( count );
     m_count = count;
     return *this;
 }
