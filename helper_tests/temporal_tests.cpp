@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cassert>
 #include <map>
-#include "time_info/temporal.h"
+#include "../temporal/temporal.h"
 
 void time_moment_date_time_test()
 {
@@ -160,6 +160,15 @@ void time_ratio_test()
         assert( dayt.minute() == 38 );
         assert( dayt.sec() == 22 );
         assert( dayt.nsec() == 629000000 );
+
+        verbose_date_time vdt{ dayt.to_verbose_date_time() };
+        assert( vdt.year == 2017 );
+        assert( vdt.month == date_time::apr );
+        assert( vdt.day == 27 );
+        assert( vdt.hour == 15 );
+        assert( vdt.min == 38 );
+        assert( vdt.sec == 22 );
+        assert( vdt.nsec == 629000000 );
     }
 
     {
