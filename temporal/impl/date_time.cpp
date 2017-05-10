@@ -75,22 +75,11 @@ void validate_nsec( time_type nsec )
 }
 
 // date calculations
-tempalte< typename T, typename = typename std::enable_if< std::is_integral< T >::value >::type >
+template< typename T, typename = typename std::enable_if< std::is_integral< T >::value >::type >
 constexpr T floor_div( T a, int b ) noexcept
 {
     return ( a - ( a < 0 ? b - 1 : 0 ) ) / b;
 }
-
-struct verbose_date_time
-{
-    int64_t day{ 0 };
-    int64_t month{ 0 };
-    int64_t year{ 0 };
-    int64_t hour{ 0 };
-    int64_t min{ 0 };
-    int64_t sec{ 0 };
-    int64_t nsec{ 0 };
-};
 
 time_type vdate_to_julian_sec( int64_t year, date_time::dt_month month, time_type day,
                                time_type hour, time_type min, time_type sec ) noexcept
@@ -131,7 +120,7 @@ verbose_date_time julian_sec_to_vdate( time_type julian_sec ) noexcept
 
     verbose_date_time vdt;
     vdt.day = e - floor_div( 153 * m + 2, 5 ) + 1;
-    vdt.month = m + 3 - 12 * floor_div( m, 10 );
+    vdt.month = static_cast< date_time::dt_month >( m + 3 - 12 * floor_div( m, 10 ) );
     vdt.year = 100 * b + d - 4800 + floor_div( m, 10 );
 
     if( vdt.year <= 0 )
@@ -206,9 +195,9 @@ namespace serialize
 
 static std::string serialize( verbose_date_time& dtv, int dow, const std::string& pattern ) noexcept
 {
-    int64_t msec{ dtv.nsec / 1000000 };
+    time_type msec{ dtv.nsec / 1000000 };
     dtv.nsec -= msec * 1000000;
-    int64_t usec{ dtv.nsec / 1000 };
+    time_type usec{ dtv.nsec / 1000 };
     dtv.nsec -= usec * 1000;
 
     std::string result{ pattern };
@@ -226,7 +215,7 @@ static std::string serialize( verbose_date_time& dtv, int dow, const std::string
     return result;
 }
 
-}
+}// serialize
 
 }// details
 
@@ -235,15 +224,22 @@ date_time::date_time( int64_t year, dt_month month, time_type day,
                       time_type hour, time_type min, time_type sec, time_type nsec ) :
     m_time( details::vdate_to_julian_sec( year, month, day, hour, min, sec ), nsec ){}
 
+verbose_date_time date_time::to_verbose_date_time() const noexcept
+{
+    auto vdt = details::julian_sec_to_vdate( m_time.jsec() );
+    vdt.nsec = m_time.nsec();
+    return vdt;
+}
+
 bool date_time::is_leap() const noexcept
 {
-    return details::is_leap( details::julian_sec_to_vdate( m_time.jsec() ).year );
+    return details::is_leap( to_verbose_date_time().year );
 }
 
 int date_time::day_of_week() const noexcept
 {
     time_type jday = m_time.jsec() / ratio::day_ratio_sec;
-    return jday >=0 ? ( jday % 7 ) + 1 : ( ( jday + 1 ) % 7 ) + 7;
+    return jday >= 0 ? ( jday % 7 ) + 1 : ( ( jday + 1 ) % 7 ) + 7;
 }
 
 //year:month:day:hour:min:sec:msec:usec:nsec
@@ -251,41 +247,39 @@ std::string date_time::to_string( const std::string& pattern ) const noexcept
 {
     static std::string default_pattern{ "w mn d hr:min:sec:ms yr" };
 
-    auto dtv = details::julian_sec_to_vdate( m_time.jsec() );
-    dtv.nsec = nsec();
-
+    auto dtv = to_verbose_date_time();
     return details::serialize::serialize( dtv, day_of_week(),
                                           pattern.empty()? default_pattern : pattern );
 }
 
 int64_t date_time::year() const noexcept
 {
-    return details::julian_sec_to_vdate( m_time.jsec() ).year;
+    return to_verbose_date_time().year;
 }
 
 auto date_time::month() const noexcept -> dt_month
 {
-    return static_cast< dt_month >( details::julian_sec_to_vdate( m_time.jsec() ).month );
+    return to_verbose_date_time().month;
 }
 
 time_type date_time::day() const noexcept
 {
-    return details::julian_sec_to_vdate( m_time.jsec() ).day;
+    return to_verbose_date_time().day;
 }
 
 time_type date_time::hour() const noexcept
 {
-    return details::julian_sec_to_vdate( m_time.jsec() ).hour;
+    return to_verbose_date_time().hour;
 }
 
 time_type date_time::minute() const noexcept
 {
-    return details::julian_sec_to_vdate( m_time.jsec() ).min;
+    return to_verbose_date_time().min;
 }
 
 time_type date_time::sec() const noexcept
 {
-    return details::julian_sec_to_vdate( m_time.jsec() ).sec;
+    return to_verbose_date_time().sec;
 }
 
 time_type date_time::nsec() const noexcept

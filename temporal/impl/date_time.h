@@ -14,6 +14,8 @@ template< time_type, time_type > class time_ratio;
 
 }// details
 
+struct verbose_date_time;
+
 class date_time final
 {
     template< time_type, time_type > friend class details::time_ratio;
@@ -25,6 +27,8 @@ public:
     constexpr explicit date_time( const details::time_moment& tm ) : m_time( tm ){}
     date_time( int64_t year, dt_month month, time_type day,
                time_type hour, time_type min, time_type sec, time_type nsec );
+
+    verbose_date_time to_verbose_date_time() const noexcept;
 
     int64_t year() const noexcept;
     dt_month month() const noexcept;
@@ -76,6 +80,17 @@ private:
 
 private:
     details::time_moment m_time;
+};
+
+struct verbose_date_time
+{
+    time_type day{ 0 };
+    date_time::dt_month month{ date_time::jan };
+    int64_t year{ 0 };
+    time_type hour{ 0 };
+    time_type min{ 0 };
+    time_type sec{ 0 };
+    time_type nsec{ 0 };
 };
 
 }// temporal
