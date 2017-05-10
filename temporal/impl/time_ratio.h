@@ -7,15 +7,22 @@
 namespace temporal
 {
 
+/// \brief since::julian implies that the specified time is calculated since
+/// julian day 0, and no time is added to time_moment of time_ratio
+/// since::julian means that seconds since julian day 0 will be added to
+/// the duration under the hood
 enum class since
 {
-    epoch,
-    julian // add to std::duration seconds since julian year 0 to 1970
+    epoch, // converts to julian time
+    julian
 };
 
 namespace details
 {
 
+/// \brief General class for time representation
+/// tick_cnt is tick count per sec_period( period in seconds )
+/// so for ex. to represent minutes tick_cnt = 1, sec_period = 60
 template< time_type tick_cnt, time_type sec_period >
 class time_ratio final
 {
@@ -83,7 +90,8 @@ public:
     template< typename std_duration_type = curr_std_duration_type,
               typename = enable_if_std_duration< std_duration_type > >
     constexpr std_duration_type to_std_duration() const noexcept; // since julian
-    constexpr operator curr_std_duration_type() const noexcept;
+
+    operator curr_std_duration_type() const noexcept{ return to_std_duration< curr_std_duration_type >(); }
 
     constexpr time_type count() const noexcept; // count of units(msec, sec etc)
     constexpr time_type count_since_epoch() const noexcept; // count of units since epoch

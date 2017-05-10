@@ -222,12 +222,6 @@ constexpr std_duration_type time_ratio< tick_cnt, period >::to_std_duration() co
 }
 
 template< time_type tick_cnt, time_type period >
-constexpr time_ratio< tick_cnt, period >::operator curr_std_duration_type() const noexcept
-{
-    return to_std_duration< curr_std_duration_type >();
-}
-
-template< time_type tick_cnt, time_type period >
 constexpr time_type time_ratio< tick_cnt, period >::count() const noexcept
 {
     return m_count;

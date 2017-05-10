@@ -14,8 +14,12 @@ template< time_type, time_type > class time_ratio;
 
 }// details
 
+/// \brief Aux class to be able to get date and time components at once
 struct verbose_date_time;
 
+/// \brief General class for date and time representation
+/// Provides the means to convert time_moment to date and time, and vice versa
+/// Is able to serialize date and time into std::string
 class date_time final
 {
     template< time_type, time_type > friend class details::time_ratio;
@@ -40,8 +44,8 @@ public:
     time_type sec() const noexcept;
     time_type nsec() const noexcept;
 
-    bool is_leap() const noexcept;
-    int day_of_week() const noexcept;
+    bool is_leap() const noexcept; // check if the year of the current time_moment is leap
+    int day_of_week() const noexcept; // get day of weak number( starts with 1 )
 
     // Avaliable patterns:
     // yr - year, mn - month, d - day, w -day of weak, hr - hour,
