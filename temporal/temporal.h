@@ -14,7 +14,6 @@ using minutes_t  = details::time_ratio< 1, ratio::min_ratio_sec >;
 using hours_t    = details::time_ratio< 1, ratio::hour_ratio_sec >;
 using days_t     = details::time_ratio< 1, ratio::day_ratio_sec >;
 
-
 }// temporal
 
 #endif

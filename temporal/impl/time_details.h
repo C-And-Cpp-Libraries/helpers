@@ -12,7 +12,6 @@ class date_time;
 namespace ratio
 {
 
-static constexpr time_type micro_ratio_ns{ 1000 };
 static constexpr time_type ns_ratio_sec{ 1000000000 };
 static constexpr time_type micro_ratio_sec{ 1000000 };
 static constexpr time_type milli_ratio_sec{ 1000 };
@@ -41,6 +40,7 @@ using enable_if_std_duration = typename std::enable_if< is_duration< T >::value 
 namespace details
 {
 
+//
 class time_moment final
 {
 public:

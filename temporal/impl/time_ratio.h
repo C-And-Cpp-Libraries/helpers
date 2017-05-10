@@ -19,6 +19,10 @@ namespace details
 template< time_type tick_cnt, time_type sec_period >
 class time_ratio final
 {
+    using curr_std_duration_type = std::chrono::duration<
+    typename std::conditional< ( sec_period > tick_cnt ), int, int64_t >::type,
+    std::ratio< sec_period, tick_cnt > >;
+
     using curr_time_ratio = time_ratio< tick_cnt, sec_period >;
     template< time_type, time_type > friend class time_ratio;
 
@@ -68,6 +72,7 @@ public:
     template< typename std_duration_type, typename = enable_if_std_duration< std_duration_type > >
     void from_std_duration( const std_duration_type& duration, const since& start_point ) noexcept;
 
+    // returns curr_time_ratio class initialized with the current time since julian day 0
     static curr_time_ratio now() noexcept;
 
     // conversions to
@@ -75,16 +80,17 @@ public:
     constexpr timeval to_timeval() const noexcept;
     constexpr timespec to_timespec() const noexcept;
 
-    template< typename std_duration_type = std::chrono::nanoseconds,
+    template< typename std_duration_type = curr_std_duration_type,
               typename = enable_if_std_duration< std_duration_type > >
     constexpr std_duration_type to_std_duration() const noexcept; // since julian
+    constexpr operator curr_std_duration_type() const noexcept;
 
-    constexpr time_type count() const noexcept;
-    constexpr time_type count_since_epoch() const noexcept;
-    constexpr date_time to_date_time() const noexcept;
+    constexpr time_type count() const noexcept; // count of units(msec, sec etc)
+    constexpr time_type count_since_epoch() const noexcept; // count of units since epoch
+    constexpr date_time to_date_time() const noexcept; // convert to date_time
 
     // limits
-    static constexpr curr_time_ratio max() noexcept;
+    static constexpr curr_time_ratio max() noexcept; // max possible value for the current tick count and period
 
     // operators
     template< time_type other_tick_cnt, time_type other_sec_period >
@@ -104,7 +110,7 @@ public:
 
 private:
     time_moment m_time;
-    time_type m_count{ 0 };
+    time_type m_count{ 0 }; // count of units for the current tick count and period
     static constexpr curr_time_ratio m_max{ std::numeric_limits< time_type >::max() };
 };
 
