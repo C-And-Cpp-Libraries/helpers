@@ -28,6 +28,8 @@ public:
     date_time( int64_t year, dt_month month, time_type day,
                time_type hour, time_type min, time_type sec, time_type nsec );
 
+    explicit date_time( const verbose_date_time& vdt );
+
     verbose_date_time to_verbose_date_time() const noexcept;
 
     int64_t year() const noexcept;

@@ -224,6 +224,9 @@ date_time::date_time( int64_t year, dt_month month, time_type day,
                       time_type hour, time_type min, time_type sec, time_type nsec ) :
     m_time( details::vdate_to_julian_sec( year, month, day, hour, min, sec ), nsec ){}
 
+date_time::date_time( const verbose_date_time& vdt ) :
+    date_time( vdt.year, vdt.month, vdt.day, vdt.hour, vdt.min, vdt.sec, vdt.nsec ){}
+
 verbose_date_time date_time::to_verbose_date_time() const noexcept
 {
     auto vdt = details::julian_sec_to_vdate( m_time.jsec() );
