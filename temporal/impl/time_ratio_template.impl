@@ -129,8 +129,8 @@ time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const
 
 // assignment from other time_ratio with possibly different tick_count and period
 template< time_type tick_cnt, time_type period >
-template< time_type other_num, time_type other_denum >
-time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const time_ratio< other_num, other_denum >& other ) noexcept
+template< time_type other_tick_cnt, time_type other_period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const time_ratio< other_tick_cnt, other_period >& other ) noexcept
 {
     m_time = other.m_time;
     m_count = ratio_count< tick_cnt, period >( m_time );
@@ -138,8 +138,8 @@ time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( const
 }
 
 template< time_type tick_cnt, time_type period >
-template< time_type other_num, time_type other_denum >
-time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( time_ratio< other_num, other_denum >&& other ) noexcept
+template< time_type other_tick_cnt, time_type other_period >
+time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::operator=( time_ratio< other_tick_cnt, other_period >&& other ) noexcept
 {
     m_time = std::move( other.m_time );
     m_count = ratio_count< tick_cnt, period >( m_time );
