@@ -11,7 +11,7 @@
 #include <functional>
 #include <set>
 
-#include "../chrono/type_traits.h"
+#include "../type_traits/type_traits.h"
 
 namespace helpers
 {
@@ -160,11 +160,11 @@ public:
     {
         std::lock_guard< std::mutex >{ m_tasks_mutex };
 
-//        while( !m_task_queue.empty() )
-//        {
-//            m_present_task_ids.erase( m_task_queue.top().id() );
-//            m_task_queue.pop();
-//        }
+        while( !m_task_queue.empty() )
+        {
+            m_present_task_ids.erase( m_task_queue.top().id() );
+            m_task_queue.pop();
+        }
     }
 
     size_t total_tasks() const
@@ -327,7 +327,7 @@ thread_pool::add_task( const task_priority& priority, Func&& func, Args&&... arg
 template< typename TimeoutType >
 bool thread_pool::wait_until_finished( const TimeoutType& timeout ) const
 {
-    static_assert( chrono::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
+    static_assert( type_traits::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
     return m_task_handler.wait_until_finished( timeout );
 }
 

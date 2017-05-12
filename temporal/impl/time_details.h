@@ -3,6 +3,9 @@
 
 #include <chrono>
 
+namespace helpers
+{
+
 namespace temporal
 {
 
@@ -26,14 +29,6 @@ namespace details
 {
 
 static constexpr time_type julian_sec_before_epoch{ 2440588 * ratio::day_ratio_sec };
-
-template< typename T > struct is_duration : std::false_type {};
-
-template< typename rep, typename period >
-struct is_duration< std::chrono::duration< rep, period > > : std::true_type {};
-
-template< typename T >
-using enable_if_std_duration = typename std::enable_if< is_duration< T >::value >::type;
 
 }// details
 
@@ -125,5 +120,7 @@ constexpr time_moment operator-( const time_moment& l, const time_moment& r ) no
 }// details
 
 }// temporal
+
+}// helpers
 
 #endif

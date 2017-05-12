@@ -1,5 +1,8 @@
 ﻿#include "time_details.h"
 
+namespace helpers
+{
+
 namespace temporal
 {
 
@@ -82,3 +85,5 @@ time_moment& time_moment::operator-=( const time_moment& other ) noexcept
 }// details
 
 }// temporal
+
+}// helpers

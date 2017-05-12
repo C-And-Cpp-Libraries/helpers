@@ -1,5 +1,3 @@
-//#include "stdafx.h"
-
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -8,11 +6,11 @@
 #include <map>
 #include "../temporal/temporal.h"
 
+using namespace helpers::temporal;
+using namespace helpers::temporal::details;
+
 void time_moment_date_time_test()
 {
-    using namespace temporal;
-    using namespace temporal::details;
-
     // time moment
     time_moment t1{ 1, 999999999 };
     time_moment t2{ 1, 999999999 };
@@ -76,9 +74,6 @@ void time_moment_date_time_test()
 
 void time_ratio_test()
 {
-    using namespace temporal;
-    using namespace temporal::details;
-
     { // ctors assignment and general values
         nanosec_t ns0;
         days_t d{ 2 };

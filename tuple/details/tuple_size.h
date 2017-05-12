@@ -25,10 +25,10 @@ constexpr size_t tuple_size( T< Args... >&& )
     return args_size< Args... >();
 }
 
-}
+}// details
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif

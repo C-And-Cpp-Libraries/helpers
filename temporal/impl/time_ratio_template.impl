@@ -4,6 +4,9 @@
 #include "time_ratio.h"
 #include <utility>
 
+namespace helpers
+{
+
 namespace temporal
 {
 
@@ -311,5 +314,7 @@ operator-( const time_ratio< ltk, lp >& l, const time_ratio< rtk, rp >& r ) noex
 }// details
 
 }// temporal
+
+}// helpers
 
 #endif

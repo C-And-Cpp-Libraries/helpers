@@ -35,10 +35,10 @@ constexpr size_t _first_of_type()
                 index : _first_of_type< Target, startIndex, index + 1, Tail... >();
 }
 
-}
+}// details
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif

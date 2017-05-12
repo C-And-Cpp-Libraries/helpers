@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "../class/non_copyable.h"
-#include "../functional/type_traits.h"
+#include "../type_traits/type_traits.h"
 
 namespace helpers
 {
@@ -27,7 +27,7 @@ private:
 
 using TEST_RESULTS = std::list< TEST_RESULT >;
 
-class TEST_RESULTS_STORAGE : public classes::singleton
+class TEST_RESULTS_STORAGE : public classes::non_copyable_non_movable
 {
     template< typename Test, typename... TestArgs  >
     friend void TEST_CASE( const std::string&, Test&&, TestArgs&&... );
@@ -57,11 +57,11 @@ void TEST_DYNAMIC_ASSERT( bool val, const std::string& error );
 enum class SHOULD_THROW{ YES, NO };
 
 template< typename Func, typename... Args,
-          typename = typename std::enable_if< helpers::functional::returns_void< Func, Args... >::value >::type>
+          typename = type_traits::enable_if_return_void< Func, Args... > >
 void TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args );
 
 template< typename Func, typename... Args,
-          typename = typename std::enable_if< !helpers::functional::returns_void< Func, Args... >::value >::type >
+          typename = type_traits::disable_if_return_void< Func, Args... > >
 typename std::result_of< Func( Args... ) >::type
 TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args );
 

@@ -7,7 +7,6 @@ namespace helpers
 namespace classes
 {
 
-
 class non_copyable
 {
 public:
@@ -28,14 +27,14 @@ public:
     non_movable& operator=( non_movable&& ) = delete;
 };
 
-class singleton : public non_copyable, public non_movable
+class non_copyable_non_movable : public non_copyable, public non_movable
 {
 public:
-    singleton() = default;
+    non_copyable_non_movable() = default;
 };
 
-}
+}// classes
 
-}
+}// helpers
 
 #endif

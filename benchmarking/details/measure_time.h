@@ -29,4 +29,5 @@ typename std::result_of< Func( Args... ) >::type _exec_func_result( Func&& f, Ar
 }// benchmarking
 
 }// helpers
+
 #endif

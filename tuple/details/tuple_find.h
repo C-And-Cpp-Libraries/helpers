@@ -30,10 +30,10 @@ constexpr size_t _tuple_find( Target&& target, T&& t  )
                             ( std::forward< Target >( target ), std::forward< T >( t ) );
 }
 
-}
+}// details
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif

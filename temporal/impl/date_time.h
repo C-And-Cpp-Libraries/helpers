@@ -4,6 +4,9 @@
 #include <string>
 #include "time_details.h"
 
+namespace helpers
+{
+
 namespace temporal
 {
 
@@ -101,10 +104,11 @@ struct verbose_date_time
 
 }// temporal
 
-inline std::ostream& operator<<( std::ostream& os, const temporal::date_time& dt )
+}// helpers
+
+inline std::ostream& operator<<( std::ostream& os, const helpers::temporal::date_time& dt )
 {
     os << dt.to_string();
     return os;
 }
-
 #endif

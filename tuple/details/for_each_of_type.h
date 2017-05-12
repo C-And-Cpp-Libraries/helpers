@@ -32,10 +32,10 @@ void _for_each_of_type( T&& t, Functor&& f )
     _for_each_of_type< Target, Functor, next_index, size >( std::forward< T >( t ), std::forward< Functor >( f ) );
 }
 
-}
+}// details
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif

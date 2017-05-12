@@ -29,10 +29,10 @@ struct _type_present< Target, Curr > : std::conditional< std::is_same< Target, C
 
 };
 
-}
+}// details
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif

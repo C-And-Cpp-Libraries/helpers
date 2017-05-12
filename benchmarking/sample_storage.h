@@ -17,8 +17,8 @@ namespace benchmarking
 template< typename _key,
           typename _sample_duration = std::chrono::nanoseconds,
           typename _clock = std::chrono::system_clock,
-          typename = details::enable_if_duration< _sample_duration >,
-          typename = details::enable_if_clock< _clock > >
+          typename = type_traits::enable_if_duration< _sample_duration >,
+          typename = type_traits::enable_if_clock< _clock > >
 class sample_storage
 {
     using key_type = details::decay_t< _key >;

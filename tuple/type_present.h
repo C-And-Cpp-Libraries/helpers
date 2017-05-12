@@ -24,8 +24,8 @@ constexpr bool type_present( const T< Args... >&& t )
     return details::_type_present< Target, Args... >::value;
 }
 
-}
+}// tuple
 
-}
+}// helpers
 
 #endif
