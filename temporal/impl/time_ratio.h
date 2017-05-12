@@ -26,6 +26,9 @@ namespace details
 template< time_type tick_cnt, time_type sec_period >
 class time_ratio final
 {
+    static_assert( tick_cnt > 0, "Number of ticks must be positive");
+    static_assert( sec_period > 0, "Period must be positive");
+    
     using curr_std_duration_type = std::chrono::duration<
     typename std::conditional< ( sec_period > tick_cnt ), int, int64_t >::type,
     std::ratio< sec_period, tick_cnt > >;
