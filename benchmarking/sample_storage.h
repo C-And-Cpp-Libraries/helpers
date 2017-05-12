@@ -36,6 +36,11 @@ private:
 
         void update( const sample_type& s, size_t max_samples ) noexcept
         {
+            if( std::numeric_limits< sample_type >::max() - sum < s )
+            {
+                throw std::overflow_error{ "Adding the timestamp would result in average calc overflow" };
+            }
+
             samples.emplace_back( s );
 
             if( max_samples && samples.size() == max_samples )
