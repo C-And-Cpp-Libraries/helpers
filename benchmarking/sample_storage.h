@@ -1,5 +1,5 @@
-#ifndef MEASURE_TIME
-#define MEASURE_TIME
+#ifndef SAMPLE_STORAGE
+#define SAMPLE_STORAGE
 
 #include <map>
 #include <mutex>
