@@ -2,8 +2,8 @@
 #define MEASURE_TIME
 
 #include "details/measure_time.h"
-#include "../../helpers/chrono/type_traits.h"
-#include "../../helpers/functional/type_traits.h"
+#include "../chrono/type_traits.h"
+#include "../functional/type_traits.h"
 
 namespace helpers
 {
