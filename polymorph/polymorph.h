@@ -10,24 +10,24 @@ namespace helpers
 class polymorph
 {
   template< typename T >
-  using disable_if_polymorph = std::enable_if< !std::is_same<
-    typename std::decay< T >::type, typename std::decay< polymorph >::type >::value >;
+  using disable_if_polymorph = typename std::enable_if< !std::is_same<
+    typename std::decay< T >::type, polymorph >::value >::type;
 
   class base_type_storage;
 
 public:
     polymorph() = default;
 
-    template< typename T, typename = typename disable_if_polymorph< T >::type >
+    template< typename T, typename = disable_if_polymorph< T > >
     polymorph( T&& t ); // internal data assignment  constructor
 
-    template< typename T, typename = typename disable_if_polymorph< T >::type >
+    template< typename T, typename = disable_if_polymorph< T > >
     polymorph& operator=( T&& t ); // internal data assignment operator
 
     polymorph( const polymorph& other ) noexcept;
     polymorph( polymorph&& other ) noexcept;
     polymorph& operator=( const polymorph& other ) noexcept;
-    polymorph& operator=( polymorph&& other )  noexcept;
+    polymorph& operator=( polymorph&& other ) noexcept;
 
     // Creates a deep copy of source's data instead of sharing pointer copy
     template< class T >

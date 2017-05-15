@@ -24,6 +24,12 @@ void test_poly_ctor_copy_move()
     TEST_DYNAMIC_ASSERT( !p1.empty(), "!p1.empty() copy assert failed" );
     TEST_DYNAMIC_ASSERT( !p2.empty(), "!p2.empty() copy assert failed" );
 
+    p3.deep_copy< std::string >( p1 );
+    p1.get< std::string >() = "ololo";
+
+    TEST_DYNAMIC_ASSERT( p3.check_type< std::string >(), "p3.check_type() deep copy assert failed" );
+    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::NO, [ &p3 ]{ p3.get< std::string >() == "p2"; } );
+
     p1 = std::move( p2 );
     TEST_DYNAMIC_ASSERT( !p1.empty(), "!p1.empty() move assert failed" );
     TEST_DYNAMIC_ASSERT( p2.empty(), "p2.empty() move assert failed" );

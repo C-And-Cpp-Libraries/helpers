@@ -6,6 +6,8 @@
 namespace helpers
 {
 
+class polymorph_empty : public std::exception{};
+
 class polymorph::base_type_storage
 {
 private:
@@ -67,6 +69,7 @@ std::shared_ptr< details::type_storage< T > > try_cast( const std::shared_ptr< p
 {
     auto data_casted = std::dynamic_pointer_cast< type_storage< T > >
             ( std::const_pointer_cast< polymorph::base_type_storage >( data ) );
+
     if( !data_casted )
     {
         throw std::bad_cast{};
@@ -94,12 +97,22 @@ polymorph& polymorph::operator=( T&& t )
 template< class T >
 T& polymorph::get()
 {
+    if( empty() )
+    {
+        throw polymorph_empty{};
+    }
+
     return details::try_cast< T >( m_data )->get();
 }
 
 template< class T >
 const T& polymorph::get() const
 {
+    if( empty() )
+    {
+        throw polymorph_empty{};
+    }
+
     return details::try_cast< T >( m_data )->get();
 }
 
@@ -122,15 +135,9 @@ bool polymorph::check_type() const noexcept
 }
 
 template< class T >
-polymorph& polymorph::deep_copy( const polymorph& other )
+polymorph& polymorph::deep_copy( const polymorph& source )
 {
-    if( other.empty() )
-    {
-        throw std::invalid_argument{ "Source is empty" };
-    }
-
-    auto casted = details::try_cast< T >( other.m_data );
-    m_data = details::type_storage_t< T >::create( casted->get() );
+    m_data = details::type_storage_t< T >::create( source.get< T >() );
     return *this;
 }
 
