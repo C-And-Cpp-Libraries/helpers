@@ -10,17 +10,17 @@ A small set of helper functions, classes, tiny frameworks and type traits useful
 
 ### type_traits
   * ```is_duration< T >``` - checks if type is std::chrono::duration
+  * ```enable_if_duration< T >``` - enable_if for is_duration
+  * ```returns_void< Func, Args... >``` - checks if function return type is void
+  * ```enable_if_returns_void< Func, Args... >``` - enable_if for returns_void
+  * ```disable_if_returns_void< Func, Args... >``` - not(enable_if) for returns_void
+  * ```is_clock< T >``` - checks if type conforms the typedefs for clocks from std::chrono
   
 ## classes
 
   * ```non_copyable``` - base class for non-copyable classes
   * ```non_movable``` - base class for non-movable classes
   * ```singleton``` - base class for singletons
-  
-## functional
-
-### type_traits
-  * ```returns_void< Func, Args... >``` - checks if function return type is void
 
 ## tuple
   * ```args_size< Args... >``` - returns size of args
