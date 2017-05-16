@@ -1,5 +1,5 @@
-#ifndef MEASURE_TIME_DETAILS
-#define MEASURE_TIME_DETAILS
+#ifndef _HELPERS_MEASURE_TIME_DETAILS_H_
+#define _HELPERS_MEASURE_TIME_DETAILS_H_
 
 #include <utility>
 

@@ -1,5 +1,5 @@
-#ifndef _TIME_RATIO_TEMPLETE_IMPL_
-#define _TIME_RATIO_TEMPLETE_IMPL_
+#ifndef _HELPERS_TIME_RATIO_TEMPLETE_IMPL_
+#define _HELPERS_TIME_RATIO_TEMPLETE_IMPL_
 
 #include "time_ratio.h"
 #include <utility>

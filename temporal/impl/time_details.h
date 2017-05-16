@@ -1,5 +1,5 @@
-#ifndef _TIME_DETAILS_
-#define _TIME_DETAILS_
+#ifndef _HELPERS_TIME_DETAILS_H_
+#define _HELPERS_TIME_DETAILS_H_
 
 #include <chrono>
 

@@ -1,5 +1,5 @@
-#ifndef NONCOPYABLE
-#define NONCOPYABLE
+#ifndef _HELPERS_NONCOPYABLE_H_
+#define _HELPERS_NONCOPYABLE_H_
 
 namespace helpers
 {

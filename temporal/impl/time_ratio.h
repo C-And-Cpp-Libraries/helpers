@@ -1,5 +1,5 @@
-#ifndef _TIME_RATIO_
-#define _TIME_RATIO_
+#ifndef _HELPERS_TIME_RATIO_H_
+#define _HELPERS_TIME_RATIO_H_
 
 #include "time_details.h"
 #include "date_time.h"

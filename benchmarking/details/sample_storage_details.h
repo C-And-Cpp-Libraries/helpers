@@ -1,5 +1,5 @@
-#ifndef SAMPLE_STORAGE_DETAILS
-#define SAMPLE_STORAGE_DETAILS
+#ifndef _HELPERS_SAMPLE_STORAGE_DETAILS_H_
+#define _HELPERS_SAMPLE_STORAGE_DETAILS_H_
 
 #include <type_traits>
 #include "../../type_traits/type_traits.h"

@@ -1,5 +1,5 @@
-#ifndef HELPERS_POLYMORPH
-#define HELPERS_POLYMORPH
+#ifndef _HELPERS_POLYMORPH_H_
+#define _HELPERS_POLYMORPH_H_
 
 #include <memory>
 #include <typeinfo>

@@ -1,5 +1,5 @@
-#ifndef FOR_EACH_OF_TYPE_DETAILS
-#define FOR_EACH_OF_TYPE_DETAILS
+#ifndef _HELPERS_FOR_EACH_OF_TYPE_DETAILS_H_
+#define _HELPERSFOR_EACH_OF_TYPE_DETAILS_H_
 
 #include <tuple>
 #include <utility>

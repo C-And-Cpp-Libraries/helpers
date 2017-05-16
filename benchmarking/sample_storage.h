@@ -1,5 +1,5 @@
-#ifndef SAMPLE_STORAGE
-#define SAMPLE_STORAGE
+#ifndef _HELPERS_SAMPLE_STORAGE_H_
+#define _HELPERS_SAMPLE_STORAGE_H_
 
 #include <map>
 #include <mutex>

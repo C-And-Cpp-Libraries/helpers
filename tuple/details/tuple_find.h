@@ -1,5 +1,5 @@
-#ifndef TUPLE_FIND_DETAILS
-#define TUPLE_FIND_DETAILS
+#ifndef _HELPERS_TUPLE_FIND_DETAILS_H_
+#define _HELPERS_TUPLE_FIND_DETAILS_H_
 
 #include <tuple>
 #include <utility>

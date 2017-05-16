@@ -1,5 +1,5 @@
-#ifndef _TEMPORAL_
-#define _TEMPORAL_
+#ifndef _HELPERS_TEMPORAL_H_
+#define _HELPERS_TEMPORAL_H
 
 #include "impl/time_ratio.h"
 

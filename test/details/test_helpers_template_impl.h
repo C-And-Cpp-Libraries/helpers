@@ -1,5 +1,5 @@
-#ifndef TESTS_HELPERS_TEMPLATE_IMPL
-#define TESTS_HELPERS_TEMPLATE_IMPL
+#ifndef _HELPERS_TESTS_TEMPLATE_IMPL_
+#define _HELPERS_TESTS_TEMPLATE_IMPL_
 
 #include <stdexcept>
 #include "../../type_traits/type_traits.h"

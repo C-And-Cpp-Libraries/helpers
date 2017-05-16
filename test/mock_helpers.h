@@ -1,5 +1,5 @@
-#ifndef MOCK_HELPERS
-#define MOCK_HELPERS
+#ifndef _HELPERS_MOCK_H_
+#define _HELPERS_MOCK_H_
 
 #include <type_traits>
 

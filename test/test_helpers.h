@@ -1,5 +1,5 @@
-#ifndef TESTS_HELPERS
-#define TESTS_HELPERS
+#ifndef _HELPERS_TEST_H_
+#define _HELPERS_TEST_H_
 
 #include <list>
 #include <functional>

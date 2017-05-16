@@ -1,5 +1,5 @@
-#ifndef TUPLE_TYPE_PRESENT_HELPER
-#define TUPLE_TYPE_PRESENT_HELPER
+#ifndef _HELPERS_TUPLE_TYPE_PRESENT_H_
+#define _HELPERS_TUPLE_TYPE_PRESENT_H_
 
 #include <type_traits>
 #include "details/type_present.h"

@@ -1,5 +1,5 @@
-#ifndef MEASURE_TIME
-#define MEASURE_TIME
+#ifndef _HELPERS_MEASURE_TIME_H_
+#define _HELPERS_MEASURE_TIME_H_
 
 #include "details/measure_time.h"
 #include "../type_traits/type_traits.h"

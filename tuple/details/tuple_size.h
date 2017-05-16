@@ -1,5 +1,5 @@
-#ifndef TUPLE_SIZE
-#define TUPLE_SIZE
+#ifndef _HELPERS_TUPLE_SIZE_DETAILS_H_
+#define _HELPERS_TUPLE_SIZE_DETAILS_H_
 
 #include <tuple>
 #include "../args_size.h"

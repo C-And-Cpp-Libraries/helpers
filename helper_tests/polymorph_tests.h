@@ -1,3 +1,6 @@
+#ifndef _HELPERS_POLYMORPH_TESTS_H_
+#define _HELPERS_POLYMORPH_TESTS_H_
+
 #include <iostream>
 #include <functional>
 
@@ -70,3 +73,5 @@ void run_all_tests()
 }
 
 }
+
+#endif

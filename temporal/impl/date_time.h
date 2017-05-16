@@ -1,5 +1,5 @@
-#ifndef _DATE_TIME_
-#define _DATE_TIME_
+#ifndef _HELPERS_DATE_TIME_H_
+#define _HELPERS_DATE_TIME_H_
 
 #include <string>
 #include "time_details.h"

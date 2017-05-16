@@ -1,5 +1,5 @@
-#ifndef TUPLE_FIND_HELPER
-#define TUPLE_FIND_HELPER
+#ifndef _HELPERS_TUPLE_FIND_H_
+#define _HELPERS_TUPLE_FIND_H_
 
 #include "details/tuple_find.h"
 #include "details/tuple_size.h"

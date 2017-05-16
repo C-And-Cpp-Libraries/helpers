@@ -1,7 +1,10 @@
+#ifndef _HELPERS_INTEGER_SEQUENCE_H_
+#define _HELPERS_INTEGER_SEQUENCE_H_
+
+///\brief std::integer_sequence implementation for C++11
+
 #include <cstddef>
 #include <type_traits>
-
-// std::integer_sequence implementation for C++11
 
 namespace std
 {

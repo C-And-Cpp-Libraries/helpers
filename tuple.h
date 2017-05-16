@@ -1,5 +1,5 @@
-#ifndef TUPLE_ALL_HELPERS
-#define TUPLE_ALL_HELPERS
+#ifndef _HELPERS_TUPLE_ALL_H_
+#define _HELPERS_TUPLE_ALL_H_
 
 #include "tuple/args_size.h"
 #include "tuple/first_of_type.h"

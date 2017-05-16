@@ -1,5 +1,5 @@
-#ifndef ARGS_SIZE_HELPER
-#define ARGS_SIZE_HELPER
+#ifndef _HELPERS_ARGS_SIZE_H_
+#define _HELPERS_ARGS_SIZE_H_
 
 namespace helpers
 {

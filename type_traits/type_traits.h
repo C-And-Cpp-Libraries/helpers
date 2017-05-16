@@ -1,5 +1,5 @@
-#ifndef TYPE_TRAITS
-#define TYPE_TRAITS
+#ifndef _HELPERS_TYPE_TRAITS_H_
+#define _HELPERS_TYPE_TRAITS_H_
 
 #include <chrono>
 #include <type_traits>

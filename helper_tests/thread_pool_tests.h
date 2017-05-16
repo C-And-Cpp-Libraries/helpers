@@ -1,3 +1,6 @@
+#ifndef _HELPERS_TEMPORAL_TESTS_H_
+#define _HELPERS_TEMPORAL_TESTS_H_
+
 #include <iostream>
 #include <functional>
 
@@ -92,3 +95,5 @@ void run_all_tests()
 }
 
 }
+
+#endif

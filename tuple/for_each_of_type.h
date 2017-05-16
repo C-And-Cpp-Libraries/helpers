@@ -1,5 +1,5 @@
-#ifndef FOR_EACH_OF_TYPE_HELPER
-#define FOR_EACH_OF_TYPE_HELPER
+#ifndef _HELPERS_FOR_EACH_OF_TYPE_H_
+#define _HELPERS_FOR_EACH_OF_TYPE_H_
 
 #include "details/for_each_of_type.h"
 #include "details/tuple_size.h"

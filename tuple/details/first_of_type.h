@@ -1,5 +1,5 @@
-#ifndef FIRST_OF_TYPE_DETAILS
-#define FIRST_OF_TYPE_DETAILS
+#ifndef _HELPERS_FIRST_OF_TYPE_DETAILS_H_
+#define _HELPERS_FIRST_OF_TYPE_DETAILS_H
 
 #include "../args_size.h"
 #include <type_traits>

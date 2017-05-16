@@ -1,5 +1,5 @@
-#ifndef HELPERS_THREAD_POOL
-#define HELPERS_THREAD_POOL
+#ifndef _HELPERS_THREAD_POOL_H_
+#define _HELPERS_THREAD_POOL_H_
 
 #include <atomic>
 #include <thread>
