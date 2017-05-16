@@ -20,7 +20,7 @@ void CHECK_THROW_COND( const SHOULD_THROW& cond, const std::string& testname, bo
 class test_error : public std::runtime_error{ using std::runtime_error::runtime_error; };
 
 template< typename Func, typename... Args,
-          typename = type_traits::enable_if_return_void< Func, Args... > >
+          typename = type_traits::enable_if_returns_type< void, Func, Args... > >
 void TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args )
 {
     bool throw_occured{ false };
@@ -40,7 +40,7 @@ void TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func
 }
 
 template< typename Func, typename... Args,
-          typename = type_traits::disable_if_return_void< Func, Args... > >
+          typename = type_traits::disable_if_returns_type< void, Func, Args... > >
 typename std::result_of< Func( Args... ) >::type
 TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args )
 {

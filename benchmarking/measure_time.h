@@ -12,7 +12,7 @@ namespace benchmarking
 
 template< typename duration_result_type, typename Func, typename... Args,
           typename = type_traits::enable_if_duration< duration_result_type >,
-          typename = type_traits::enable_if_return_void< Func, Args... > >
+          typename = type_traits::enable_if_returns_type< void, Func, Args... > >
 auto measure_exec_time( Func&& f, Args&&... args ) -> duration_result_type
 {
   auto start = std::chrono::system_clock::now();
@@ -26,7 +26,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> duration_result_type
 
 template< typename duration_result_type, typename Func, typename... Args,
           typename = type_traits::enable_if_duration< duration_result_type >,
-          typename = type_traits::disable_if_return_void< Func, Args... > >
+          typename = type_traits::disable_if_returns_type< void, Func, Args... > >
 auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result_type, typename std::result_of< Func(Args...) >::type >
 {
   auto start = std::chrono::system_clock::now();
