@@ -2,6 +2,7 @@
 #define _HELPERS_MEASURE_TIME_H_
 
 #include "details/measure_time.h"
+#include "../class/non_copyable.h"
 #include "../type_traits/type_traits.h"
 
 namespace helpers
@@ -43,14 +44,14 @@ template< typename _duration_type,
           typename _clock_type,
           typename = type_traits::enable_if_duration< _duration_type >,
           typename = type_traits::enable_if_clock< _clock_type > >
-class time_measure_pred final
+class scope_time_handle final : public classes::non_copyable_non_movable
 {
 public:
     using duration_type = _duration_type;
     using clock_type = _clock_type;
     using pred_type = std::function< void( const duration_type& ) >;
 
-    explicit time_measure_pred( const pred_type& execute_on_destroy ) :
+    explicit scope_time_handle( const pred_type& execute_on_destroy ) :
         m_pred( execute_on_destroy ),
         m_start( clock_type::now() )
     {
@@ -60,7 +61,7 @@ public:
         }
     }
 
-    ~time_measure_pred()
+    ~scope_time_handle()
     {
         m_pred( std::chrono::duration_cast< duration_type >( clock_type::now() - m_start ) );
     }
@@ -70,12 +71,12 @@ private:
     typename clock_type::time_point m_start;
 };
 
-using nanosec_time_measure_pred = time_measure_pred< std::chrono::nanoseconds, std::chrono::high_resolution_clock >;
-using microsec_time_measure_pred = time_measure_pred< std::chrono::microseconds, std::chrono::high_resolution_clock >;
-using millisec_time_measure_pred = time_measure_pred< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
-using sec_time_measure_pred = time_measure_pred< std::chrono::seconds, std::chrono::high_resolution_clock >;
-using min_time_measure_pred = time_measure_pred< std::chrono::minutes, std::chrono::high_resolution_clock >;
-using hour_time_measure_pred = time_measure_pred< std::chrono::hours, std::chrono::high_resolution_clock >;
+using nanosec_time_measure_pred  = scope_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
+using microsec_time_measure_pred = scope_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
+using millisec_time_measure_pred = scope_time_handle< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
+using sec_time_measure_pred      = scope_time_handle< std::chrono::seconds,      std::chrono::high_resolution_clock >;
+using min_time_measure_pred      = scope_time_handle< std::chrono::minutes,      std::chrono::high_resolution_clock >;
+using hour_time_measure_pred     = scope_time_handle< std::chrono::hours,        std::chrono::high_resolution_clock >;
 
 }// benchmarking
 
