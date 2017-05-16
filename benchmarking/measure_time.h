@@ -44,7 +44,7 @@ template< typename _duration_type,
           typename _clock_type,
           typename = type_traits::enable_if_duration< _duration_type >,
           typename = type_traits::enable_if_clock< _clock_type > >
-class scope_time_handle final : public classes::non_copyable_non_movable
+class scope_time_handle final// : public classes::non_copyable_non_movable
 {
 public:
     using duration_type = _duration_type;
@@ -71,12 +71,12 @@ private:
     typename clock_type::time_point m_start;
 };
 
-using nanosec_time_measure_pred  = scope_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
-using microsec_time_measure_pred = scope_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
-using millisec_time_measure_pred = scope_time_handle< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
-using sec_time_measure_pred      = scope_time_handle< std::chrono::seconds,      std::chrono::high_resolution_clock >;
-using min_time_measure_pred      = scope_time_handle< std::chrono::minutes,      std::chrono::high_resolution_clock >;
-using hour_time_measure_pred     = scope_time_handle< std::chrono::hours,        std::chrono::high_resolution_clock >;
+using nanosec_scope_time_handle  = scope_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
+using microsec_scope_time_handle = scope_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
+using millisec_scope_time_handle = scope_time_handle< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
+using sec_scope_time_handle      = scope_time_handle< std::chrono::seconds,      std::chrono::high_resolution_clock >;
+using min_scope_time_handle      = scope_time_handle< std::chrono::minutes,      std::chrono::high_resolution_clock >;
+using hour_scope_time_handle     = scope_time_handle< std::chrono::hours,        std::chrono::high_resolution_clock >;
 
 }// benchmarking
 
