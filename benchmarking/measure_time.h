@@ -1,6 +1,8 @@
 #ifndef _HELPERS_MEASURE_TIME_H_
 #define _HELPERS_MEASURE_TIME_H_
 
+#include <functional>
+
 #include "details/measure_time.h"
 #include "../class/non_copyable.h"
 #include "../type_traits/type_traits.h"
@@ -44,7 +46,7 @@ template< typename _duration_type,
           typename _clock_type,
           typename = type_traits::enable_if_duration< _duration_type >,
           typename = type_traits::enable_if_clock< _clock_type > >
-class scope_time_handle final// : public classes::non_copyable_non_movable
+class scope_time_handle final : public classes::non_copyable_non_movable
 {
 public:
     using duration_type = _duration_type;

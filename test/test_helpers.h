@@ -2,6 +2,7 @@
 #define _HELPERS_TEST_H_
 
 #include <list>
+#include <string>
 #include <functional>
 
 #include "../class/non_copyable.h"
@@ -29,19 +30,11 @@ using TEST_RESULTS = std::list< TEST_RESULT >;
 
 class TEST_RESULTS_STORAGE : public classes::non_copyable_non_movable
 {
-    template< typename Test, typename... TestArgs  >
-    friend void TEST_CASE( const std::string&, Test&&, TestArgs&&... );
-
-    template< typename Test, typename... TestArgs >
-    friend void TEST_CASE_SAFE( const std::string&, std::function< void() >, Test&&, TestArgs&&... );
-
 public:
     TEST_RESULTS_STORAGE() = delete;
     static const TEST_RESULTS& get() noexcept;
     static bool has_fails() noexcept;
     static void reset();
-
-private:
     static void add_result( const std::string& test_name, bool res, const std::string& err = std::string{} );
 
 private:
@@ -49,27 +42,48 @@ private:
     static TEST_RESULTS m_results;
 };
 
-#define TEST_NAME std::string{ __FUNCTION__ }
-#define CASE_NAME( case_name ) std::string{ TEST_NAME  + ":" + case_name }
+class test_error : public std::runtime_error{ using std::runtime_error::runtime_error; };
 
-void TEST_DYNAMIC_ASSERT( bool val, const std::string& error );
+#define STRING( s ) #s
+#define TEST_NAME __FUNCTION__
+#define ERROR_TEXT(error) std::string{ __FILE__ } + ":" + std::to_string( __LINE__ ) + " | " + error
 
-enum class SHOULD_THROW{ YES, NO };
+//
 
-template< typename Func, typename... Args,
-          typename = type_traits::enable_if_returns_type< void, Func, Args... > >
-void TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args );
+#define DYNAMIC_ASSERT( val )\
+if( !( val ) ) throw test_error{ ERROR_TEXT( "Assert failed: " + STRING(val) ) };\
 
-template< typename Func, typename... Args,
-          typename = type_traits::disable_if_returns_type< void, Func, Args... > >
-typename std::result_of< Func( Args... ) >::type
-TEST_EXEC_FUNC( const std::string& testname, const SHOULD_THROW& cond, Func&& f, Args&&... args );
+#define DYNAMIC_ASSERT_TEXT( val, error )\
+if( !( val ) ) throw test_error{ ERROR_TEXT( "Assert failed: " +  error ) };\
 
-template< typename Test, typename... TestArgs >
-void TEST_CASE( const std::string& test_name, Test&& f, TestArgs&&... args );
+//
 
-template< typename Test, typename... TestArgs >
-void TEST_CASE_SAFE( const std::string& test_name, std::function< void() > OnFail, Test&& f, TestArgs&&... args );
+#define CHECK_NOTHROW( Func )\
+try{ Func; }\
+catch( const std::exception& ) \
+{ \
+    throw helpers::test::test_error{ ERROR_TEXT( "Exception thrown" ) }; \
+}\
+
+#define CHECK_THROW( Func )\
+try{ Func; throw helpers::test::test_error{ "Exception not thrown" }; }\
+catch( const helpers::test::test_error& e )\
+{\
+    throw helpers::test::test_error{ ERROR_TEXT( e.what() ) }; \
+}\
+catch(...){} \
+
+#define TEST_CASE( test_name )\
+inline void test_name()\
+{\
+    try{\
+
+#define TEST_CASE_END( test_name ) \
+}\
+catch( const helpers::test::test_error& e ){ return helpers::test::TEST_RESULTS_STORAGE::add_result( TEST_NAME, false, e.what() ); }\
+catch( const std::runtime_error& e ){ return helpers::test::TEST_RESULTS_STORAGE::add_result( TEST_NAME, false, std::string{ "Unhandled exception: " } + e.what() ); }\
+catch( ... ){ return helpers::test::TEST_RESULTS_STORAGE::add_result( TEST_NAME, false, "Unhandled exception" ); }\
+helpers::test::TEST_RESULTS_STORAGE::add_result( TEST_NAME, true ); } \
 
 // details
 
@@ -78,5 +92,3 @@ void TEST_CASE_SAFE( const std::string& test_name, std::function< void() > OnFai
 }// helpers
 
 #endif
-
-#include "details/test_helpers_template_impl.h"

@@ -186,9 +186,9 @@ void time_ratio< tick_cnt, period >::from_std_duration( const std_duration_type&
 }
 
 template< time_type tick_cnt, time_type period >
-auto time_ratio< tick_cnt, period >::now() noexcept -> curr_time_ratio
+auto time_ratio< tick_cnt, period >::now() noexcept -> time_ratio< tick_cnt, period >
 {
-    return curr_time_ratio{ dur_to_time_moment( std::chrono::system_clock::now().time_since_epoch(), since::epoch ) };
+    return time_ratio< tick_cnt, period >{ dur_to_time_moment( std::chrono::system_clock::now().time_since_epoch(), since::epoch ) };
 }
 
 // conversion to time_t
@@ -243,11 +243,11 @@ constexpr date_time time_ratio< tick_cnt, period >::to_date_time() const noexcep
     return date_time{ m_time };
 }
 
-template< time_type tick_cnt, time_type period >
-constexpr auto time_ratio< tick_cnt, period >::max() noexcept -> curr_time_ratio
+/*template< time_type tick_cnt, time_type period >
+constexpr time_ratio< tick_cnt, period >::max() noexcept
 {
     return m_max;
-}
+}*/
 
 template< time_type tick_cnt, time_type period >
 template< time_type other_tick_cnt, time_type other_period >

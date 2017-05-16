@@ -7,13 +7,13 @@
 namespace helpers
 {
 
+namespace details{ class base_type_storage; }
+
 class polymorph
 {
   template< typename T >
   using disable_if_polymorph = typename std::enable_if< !std::is_same<
     typename std::decay< T >::type, polymorph >::value >::type;
-
-  class base_type_storage;
 
 public:
     polymorph() = default;
@@ -54,7 +54,7 @@ public:
     bool empty() const noexcept;
 
 private:
-    std::shared_ptr< base_type_storage > m_data;
+    std::shared_ptr< details::base_type_storage > m_data;
 };
 
 }// helpers

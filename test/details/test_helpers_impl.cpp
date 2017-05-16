@@ -40,30 +40,6 @@ void TEST_RESULTS_STORAGE::add_result( const std::string& test_name, bool res, c
     };
 }
 
-void TEST_DYNAMIC_ASSERT( bool val, const std::string& error )
-{
-    if( !val )
-    {
-        throw test_error( error );
-    }
-}
-
-namespace _details
-{
-
-#define ERR_MSG( testname, err_msg ) std::string{ testname + " failed : " + err_msg }
-
-void CHECK_THROW_COND( const SHOULD_THROW& cond, const std::string& testname, bool throw_occured, const std::string& error )
-{
-    if( ( cond == SHOULD_THROW::NO && throw_occured ) ||
-        ( cond == SHOULD_THROW::YES && !throw_occured ) )
-    {
-        throw test_error{ ERR_MSG( testname, error ) };
-    }
-}
-
-}
-
 }// test
 
 }// helpers

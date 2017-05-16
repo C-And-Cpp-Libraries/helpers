@@ -8,8 +8,14 @@ namespace helpers
 
 class polymorph_empty : public std::exception{};
 
-class polymorph::base_type_storage
+namespace details
 {
+
+class base_type_storage
+{
+    template< typename T >
+    friend class type_storage;
+
 private:
     struct access{};
 
@@ -21,11 +27,8 @@ public:
     virtual ~base_type_storage() = default;
 };
 
-namespace details
-{
-
 template< typename T >
-class type_storage final : public polymorph::base_type_storage
+class type_storage final : public base_type_storage
 {
     using base_type = T;
     using base_unref_type = typename std::remove_reference< T >::type;
@@ -65,10 +68,10 @@ private:
 };
 
 template< typename T >
-std::shared_ptr< details::type_storage< T > > try_cast( const std::shared_ptr< polymorph::base_type_storage >& data )
+std::shared_ptr< details::type_storage< T > > try_cast( const std::shared_ptr< details::base_type_storage >& data )
 {
     auto data_casted = std::dynamic_pointer_cast< type_storage< T > >
-            ( std::const_pointer_cast< polymorph::base_type_storage >( data ) );
+            ( std::const_pointer_cast< details::base_type_storage >( data ) );
 
     if( !data_casted )
     {

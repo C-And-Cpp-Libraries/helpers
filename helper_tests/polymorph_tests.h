@@ -13,63 +13,67 @@ using namespace helpers::test;
 namespace polymorph_tests
 {
 
-void test_poly_ctor_copy_move()
+TEST_CASE( test_poly_ctor_copy_move )
 {
     polymorph p1;
     polymorph p2 = std::string{ "p2" };
     polymorph p3{ int{ 1 } };
 
 
-    TEST_DYNAMIC_ASSERT( p1.empty(), "p1.empty() assert failed" );
-    TEST_DYNAMIC_ASSERT( !p2.empty(), "!p2.empty() assert failed" );
+    DYNAMIC_ASSERT( p1.empty() )
+    DYNAMIC_ASSERT( !p2.empty() )
 
     p1 = p2;
-    TEST_DYNAMIC_ASSERT( !p1.empty(), "!p1.empty() copy assert failed" );
-    TEST_DYNAMIC_ASSERT( !p2.empty(), "!p2.empty() copy assert failed" );
+    DYNAMIC_ASSERT( !p1.empty() )
+    DYNAMIC_ASSERT( !p2.empty() )
 
     p3.deep_copy< std::string >( p1 );
     p1.get< std::string >() = "ololo";
 
-    TEST_DYNAMIC_ASSERT( p3.check_type< std::string >(), "p3.check_type() deep copy assert failed" );
-    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::NO, [ &p3 ]{ p3.get< std::string >() == "p2"; } );
+    DYNAMIC_ASSERT( p3.check_type< std::string >() )
+
+    std::string temp;
+    CHECK_NOTHROW( temp = p3.get< std::string >() )
+    DYNAMIC_ASSERT( temp == "p2" )
 
     p1 = std::move( p2 );
-    TEST_DYNAMIC_ASSERT( !p1.empty(), "!p1.empty() move assert failed" );
-    TEST_DYNAMIC_ASSERT( p2.empty(), "p2.empty() move assert failed" );
+    DYNAMIC_ASSERT( !p1.empty() )
+    DYNAMIC_ASSERT( p2.empty() )
 }
+TEST_CASE_END( test_poly_ctor_copy_move )
 
-void test_poly_type()
+inline void test_poly_type()
 {
     polymorph p1;
     polymorph p2 = std::string{ "p2" };
 
-    TEST_DYNAMIC_ASSERT( p1.empty(), "p1.empty() assert failed" );
-    TEST_DYNAMIC_ASSERT( !p2.empty(), "!p2.empty() assert failed" );
+    DYNAMIC_ASSERT( p1.empty() )
+    DYNAMIC_ASSERT( !p2.empty() )
 
-    TEST_DYNAMIC_ASSERT( !p1.check_type< int >(), "!p1.check_type() assert failed" );
-    TEST_DYNAMIC_ASSERT( p2.check_type< std::string >(), "p2.check_type() assert failed" );
-    TEST_DYNAMIC_ASSERT( !p2.check_type< int >(), "!p2.check_type() assert failed" );
+    DYNAMIC_ASSERT( !p1.check_type< int >() )
+    DYNAMIC_ASSERT( p2.check_type< std::string >() )
+    DYNAMIC_ASSERT( !p2.check_type< int >() )
 
-    TEST_DYNAMIC_ASSERT( p1.type_info() == typeid( void ), "p1.type_info() assert failed" );
-    TEST_DYNAMIC_ASSERT( p2.type_info() == typeid( std::string ), "p2.type_info() assert failed" );
-    TEST_DYNAMIC_ASSERT( p2.type_info() != typeid( int ), "!p2.type_info() assert failed" );
+    DYNAMIC_ASSERT( p1.type_info() == typeid( void ) )
+    DYNAMIC_ASSERT( p2.type_info() == typeid( std::string ) )
+    DYNAMIC_ASSERT( p2.type_info() != typeid( int ) )
 
-    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::YES, [ &p1 ]{ const int i = p1.get< int >(); } );
-    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::YES, [ &p1 ]{ int i = p1.get< int >(); } );
+    CHECK_THROW( const int i = p1.get< int >() )
+    CHECK_THROW( int i = p1.get< int >() )
 
-    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::NO, [ &p2 ]{ const std::string& i = p2.get< std::string >(); } );
-    TEST_EXEC_FUNC( TEST_NAME, SHOULD_THROW::NO, [ &p2 ]{ std::string& i = p2.get< std::string >(); } );
+    CHECK_NOTHROW( const std::string& i = p2.get< std::string >() )
+    CHECK_NOTHROW( std::string& i = p2.get< std::string >() )
 
-    TEST_DYNAMIC_ASSERT( p2.get< std::string >() == "p2", "p2.get() string value assert failed" );
+    DYNAMIC_ASSERT( p2.get< std::string >() == "p2" )
 
     p2 = int{ 1 };
-    TEST_DYNAMIC_ASSERT( p2.get< int >(), "p2.get() int value assert failed" );
+    DYNAMIC_ASSERT( p2.get< int >() > 0 )
 }
 
-void run_all_tests()
+inline void run_all_tests()
 {
-    TEST_CASE( "test_poly_ctor_copy_move", test_poly_ctor_copy_move );
-    TEST_CASE( "test_poly_type", test_poly_type );
+    test_poly_ctor_copy_move();
+    test_poly_type();
 }
 
 }

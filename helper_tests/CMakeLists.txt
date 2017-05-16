@@ -6,17 +6,26 @@ project( ${PROJECT} )
 
 SET( CMAKE_BUILD_TYPE Debug )
 
-file( GLOB_RECURSE SOURCES "*.h" "*.cpp" )
+file( GLOB_RECURSE SOURCES
+"*.h"
+"*.cpp" )
 
-set(TEST_SOURCES ../test/test_helpers.h
-                 ../test/details/test_helpers_impl.cpp)
+file( GLOB_RECURSE TEST_SOURCES "../test/*" )
+file( GLOB_RECURSE POLY_SOURCES "../polymorph/*" )
+file( GLOB_RECURSE THREAD_POOL_SOURCES "../concurrency/*" )
+file( GLOB_RECURSE TEMPORAL_SOURCES "../temporal/*" )
+file( GLOB_RECURSE BENCHMARKING_SOURCES "../benchmarking/*" )
+file( GLOB_RECURSE TUPLE_SOURCES "../tuple/*" )
 
-set(POLY_SOURCES ../polymorph/polymorph.h
-                 ../polymorph/details/polymorph.cpp
-                 ../polymorph/details/polymorph.impl)
-
-set(THREAD_POOL_SOURCES ../concurrency/thread_pool.h
-                        ../concurrency/thread_pool.cpp)
-
-add_executable (${PROJECT} ${SOURCES} ${TEST_SOURCES} ${POLY_SOURCES} ${THREAD_POOL_SOURCES})
-target_link_libraries( ${PROJECT} pthread )
+add_executable (${PROJECT}
+                ${SOURCES}
+                ${TEST_SOURCES}
+                ${POLY_SOURCES}
+                ${THREAD_POOL_SOURCES}
+                ${TEMPORAL_SOURCES}
+                ${BENCHMARKING_SOURCES}
+                ${TUPLE_SOURCES}
+				)
+if (UNIX)
+    target_link_libraries( ${PROJECT} pthread )
+endif (UNIX)

@@ -1,16 +1,21 @@
 #include "polymorph_tests.h"
 #include "thread_pool_tests.h"
+#include "temporal_tests.h"
+
+#include <string>
+#include <vector>
 
 int main( int argc, char* argv[] )
 {
     std::vector< std::string > failed_tests;
     std::vector< std::pair< std::function< void() >, std::string > > tests
     {
-        { polymorph_tests::run_all_tests, "polymorph_tests" },
-        { thread_pool_tests::run_all_tests, "thread_pool_tests" }
+         { polymorph_tests::run_all_tests, "polymorph_tests" }
+        //,{ thread_pool_tests::run_all_tests, "thread_pool_tests" }
+        ,{ temporal_tests::run_all_tests, "temporal_tests" }
     };
 
-    for( const auto& test : tests )
+    for( auto& test : tests )
     {
         std::cout << test.second << std::endl;
         test.first();

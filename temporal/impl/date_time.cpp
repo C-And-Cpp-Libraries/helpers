@@ -179,7 +179,7 @@ namespace serialize
      { date_time::dec, "Dec" }
  };
 
- static std::map< uint, std::string > day_names
+ static std::map< uint32_t, std::string > day_names
  {
      { 1, "Mon" },{ 2, "Tue" },{ 3, "Wed" },{ 4, "Thu" },{ 5, "Fri" },{ 6, "Sat" },{ 7, "Sun" }
  };

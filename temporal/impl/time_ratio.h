@@ -37,7 +37,7 @@ class time_ratio final
     typename std::conditional< ( sec_period > tick_cnt ), int, int64_t >::type,
     std::ratio< sec_period, tick_cnt > >;
 
-    using curr_time_ratio = time_ratio< tick_cnt, sec_period >;
+    //using curr_time_ratio = time_ratio< tick_cnt, sec_period >;
     template< time_type, time_type > friend class time_ratio;
 
     template< time_type ltk, time_type lp, time_type rtk, time_type rp >
@@ -87,7 +87,7 @@ public:
     void from_std_duration( const std_duration_type& duration, const since& start_point ) noexcept;
 
     // returns curr_time_ratio class initialized with the current time since julian day 0
-    static curr_time_ratio now() noexcept;
+    static time_ratio< tick_cnt, sec_period > now() noexcept;
 
     // conversions to
     constexpr time_t to_time_t() const noexcept;
@@ -105,7 +105,7 @@ public:
     constexpr date_time to_date_time() const noexcept; // convert to date_time
 
     // limits
-    static constexpr curr_time_ratio max() noexcept; // max possible value for the current tick count and period
+//    static constexpr time_ratio< tick_cnt, sec_period > max() noexcept; // max possible value for the current tick count and period
 
     // operators
     template< time_type other_tick_cnt, time_type other_sec_period >
@@ -126,7 +126,7 @@ public:
 private:
     time_moment m_time;
     time_type m_count{ 0 }; // count of units for the current tick count and period
-    static constexpr curr_time_ratio m_max{ std::numeric_limits< time_type >::max() };
+//    static constexpr time_ratio< tick_cnt, sec_period > m_max{ std::numeric_limits< time_type >::max() };
 };
 
 template< time_type ltk, time_type lp, time_type rtk, time_type rp >
