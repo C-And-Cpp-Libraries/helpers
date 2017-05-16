@@ -21,14 +21,15 @@ template< typename _key,
           typename = type_traits::enable_if_clock< _clock > >
 class sample_storage
 {
+public:
     using key_type = details::decay_t< _key >;
     using time_point = typename _clock::time_point;
     using clock_type = _clock;
     using sample_type = _sample_duration;
 
+private:
     using _key_in = details::val_or_ref< _key >;
 
-private:
     struct time_data
     {
         sample_type sum{ sample_type{ 0 } };
