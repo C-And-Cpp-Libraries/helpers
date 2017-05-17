@@ -9,6 +9,8 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "../type_traits/type_traits.h"
+
 namespace helpers
 {
 
@@ -17,12 +19,6 @@ namespace concurrency
 
 namespace details
 {
-
-template< typename >
-struct is_duration : std::false_type{};
-
-template< typename Rep, typename Period >
-struct is_duration< std::chrono::duration< Rep, Period > > : std::true_type{};
 
 } //details
 
@@ -129,7 +125,7 @@ auto thread_pool::add_task( Func&& func, Args&&... args  ) -> std::future< typen
 template< typename TimeoutType >
 bool thread_pool::wait_until_finished( const TimeoutType& timeout ) const
 {
-    static_assert( details::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
+    static_assert( type_traits::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
 
     bool result{ true };
 
