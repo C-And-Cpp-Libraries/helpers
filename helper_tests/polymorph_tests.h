@@ -40,9 +40,8 @@ TEST_CASE( test_poly_ctor_copy_move )
     DYNAMIC_ASSERT( !p1.empty() )
     DYNAMIC_ASSERT( p2.empty() )
 }
-TEST_CASE_END( test_poly_ctor_copy_move )
 
-inline void test_poly_type()
+TEST_CASE( test_poly_type )
 {
     polymorph p1;
     polymorph p2 = std::string{ "p2" };
@@ -68,12 +67,6 @@ inline void test_poly_type()
 
     p2 = int{ 1 };
     DYNAMIC_ASSERT( p2.get< int >() > 0 )
-}
-
-inline void run_all_tests()
-{
-    test_poly_ctor_copy_move();
-    test_poly_type();
 }
 
 }

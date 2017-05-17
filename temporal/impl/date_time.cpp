@@ -149,44 +149,22 @@ namespace serialize
     p_year, p_month, p_day, p_day_of_week, p_hour, p_min, p_sec, p_msec, p_usec, p_nsec
  };
 
- static std::map< pattern_type, std::string > pattern_map
- {
-     { p_year, "yr" },
-     { p_month, "mn" },
-     { p_day, "d" },
-     { p_day_of_week, "w" },
-     { p_hour, "hr" },
-     { p_min, "min" },
-     { p_sec, "sec" },
-     { p_msec, "ms" },
-     { p_usec, "us" },
-     { p_nsec, "ns" }
- };
-
- static std::map< date_time::dt_month, std::string > month_names
- {
-     { date_time::jan, "Jan" },
-     { date_time::feb, "Feb" },
-     { date_time::mar, "Mar" },
-     { date_time::apr, "Apr" },
-     { date_time::may, "May" },
-     { date_time::jun, "Jun" },
-     { date_time::jul, "Jul" },
-     { date_time::aug, "Aug" },
-     { date_time::sep, "Sep" },
-     { date_time::oct, "Oct" },
-     { date_time::nov, "Nov" },
-     { date_time::dec, "Dec" }
- };
-
- static std::map< uint32_t, std::string > day_names
- {
-     { 1, "Mon" },{ 2, "Tue" },{ 3, "Wed" },{ 4, "Thu" },{ 5, "Fri" },{ 6, "Sat" },{ 7, "Sun" }
- };
-
-
  void replace_if_exists( pattern_type p, std::string& target, const std::string& source )
  {
+     static std::map< pattern_type, std::string > pattern_map
+     {
+         { p_year, "yr" },
+         { p_month, "mn" },
+         { p_day, "d" },
+         { p_day_of_week, "w" },
+         { p_hour, "hr" },
+         { p_min, "min" },
+         { p_sec, "sec" },
+         { p_msec, "ms" },
+         { p_usec, "us" },
+         { p_nsec, "ns" }
+     };
+
      const std::string& pattern = pattern_map[ p ];
 
      auto pos = target.find( pattern );
@@ -198,6 +176,27 @@ namespace serialize
 
 static std::string serialize( verbose_date_time& dtv, int dow, const std::string& pattern ) noexcept
 {
+    static std::map< date_time::dt_month, std::string > month_names
+    {
+        { date_time::jan, "Jan" },
+        { date_time::feb, "Feb" },
+        { date_time::mar, "Mar" },
+        { date_time::apr, "Apr" },
+        { date_time::may, "May" },
+        { date_time::jun, "Jun" },
+        { date_time::jul, "Jul" },
+        { date_time::aug, "Aug" },
+        { date_time::sep, "Sep" },
+        { date_time::oct, "Oct" },
+        { date_time::nov, "Nov" },
+        { date_time::dec, "Dec" }
+    };
+
+    static std::map< uint32_t, std::string > day_names
+    {
+        { 1, "Mon" },{ 2, "Tue" },{ 3, "Wed" },{ 4, "Thu" },{ 5, "Fri" },{ 6, "Sat" },{ 7, "Sun" }
+    };
+
     time_type msec{ dtv.nsec / 1000000 };
     dtv.nsec -= msec * 1000000;
     time_type usec{ dtv.nsec / 1000 };

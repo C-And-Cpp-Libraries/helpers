@@ -1,17 +1,13 @@
-#ifndef _HELPERS_THREAD_POOL_H_
-#define _HELPERS_THREAD_POOL_H_
+#ifndef HELPERS_THREAD_POOL
+#define HELPERS_THREAD_POOL
 
+#include <deque>
 #include <atomic>
 #include <thread>
 #include <future>
+#include <random>
 #include <mutex>
 #include <condition_variable>
-#include <queue>
-#include <algorithm>
-#include <functional>
-#include <set>
-
-#include "../type_traits/type_traits.h"
 
 namespace helpers
 {
@@ -19,214 +15,14 @@ namespace helpers
 namespace concurrency
 {
 
-using task_id = uint64_t;
-enum class task_priority{ low, medium, high };
-
-template< typename Result >
-using task_result = std::pair< task_id, std::future< Result > >;
-
 namespace details
 {
 
-class task_handler;
+template< typename >
+struct is_duration : std::false_type{};
 
-class task final
-{
-public:
-    task() = default;
-    task( task_id id, const task_priority& priority, std::function< void() >&& func ) :
-        m_id( id ), m_priority( priority ), m_task_func( std::move( func ) ){}
-
-    task( task&& other ) : m_id( other.m_id ), m_priority( other.m_priority )
-    {
-        other.m_task_func.swap( m_task_func );
-        other.m_id = 0;
-        other.m_priority = task_priority::low;
-    }
-
-    task& operator=( task&& other )
-    {
-        m_id = other.m_id;
-        m_priority = other.m_priority;
-        other.m_task_func.swap( m_task_func );
-
-        other.m_id = 0;
-
-        return *this;
-    }
-
-    void run()
-    {
-        try
-        {
-        m_task_func();
-        }
-        catch( const std::bad_function_call& ){}
-    }
-
-    task_id id() const { return m_id; }
-    const task_priority& priority() const { return m_priority; }
-
-    inline bool operator<( const task& other ) const
-    {
-        return ( m_priority < other.m_priority ) ? true : ( m_id < other.m_id );
-    }
-
-    inline bool operator==( const task_id& other_id ) const { return m_id == other_id; }
-
-private:
-    task_id m_id;
-    task_priority m_priority;
-    std::function< void() > m_task_func;
-};
-
-class task_queue final : public std::priority_queue< task >
-{
-public:
-    bool erase( task_id id )
-    {
-        auto it = std::find( c.begin(), c.end(), id );
-        if( it != this->c.end() )
-        {
-            c.erase( it );
-            std::make_heap( c.begin(), c.end(), comp );
-            return true;
-        }
-
-        return false;
-    }
-
-    reference top()
-    {
-        return c.front();
-    }
-};
-
-class task_handler final
-{
-    friend class task;
-
-public:
-    ~task_handler()
-    {
-        // Notify all waiting threads upon destruction
-        m_tasks_status_cv.notify_all();
-    }
-
-    void run_next_task()
-    {
-        task t;
-
-        {
-            std::lock_guard< std::mutex >{ m_tasks_mutex };
-            if( m_task_queue.empty() )
-            {
-                return;
-            }
-
-            t = std::move( m_task_queue.top() );
-            m_task_queue.pop();
-        }
-
-        t.run();
-        notify_task_finished( t.id() );
-    }
-
-    task_id add_task( const task_priority& priority, std::function< void() >&& func )
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-
-        task_id id{ next_id() };
-        m_task_queue.emplace( id, priority, std::move( func ) );
-        m_present_task_ids.emplace( id );
-
-        return id;
-    }
-
-    bool erase_task( task_id id )
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-
-        if( m_task_queue.erase( id ) )
-        {
-            m_present_task_ids.erase( id );
-            return true;
-        }
-
-        return false;
-    }
-
-    void clean()
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-
-        while( !m_task_queue.empty() )
-        {
-            m_present_task_ids.erase( m_task_queue.top().id() );
-            m_task_queue.pop();
-        }
-    }
-
-    size_t total_tasks() const
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-        return m_present_task_ids.size();
-    }
-
-    size_t queued_tasks() const
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-        return m_task_queue.size();
-    }
-
-    template< typename TimeoutType >
-    bool wait_until_finished( const TimeoutType& timeout ) const
-    {
-        bool result{ true };
-
-        std::unique_lock< std::mutex > l{ m_tasks_mutex };
-
-        if( m_present_task_ids.size() )
-        {
-            if( timeout.count() )
-            {
-                result = m_tasks_status_cv.wait_for( l, timeout, [ this ](){ return !m_present_task_ids.size(); } );
-            }
-            else
-            {
-                m_tasks_status_cv.wait( l, [ this ](){ return !m_present_task_ids.size(); } );
-            }
-        }
-
-        return result;
-    }
-
-private:
-    task_id next_id()
-    {
-        task_id last_id{  m_present_task_ids.size()?
-                        *m_present_task_ids.rbegin() : 0 };
-
-        return ++last_id;
-    }
-
-    void notify_task_finished( task_id id )
-    {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
-        m_present_task_ids.erase( id );
-
-        if( m_present_task_ids.empty() )
-        {
-            m_tasks_status_cv.notify_all();
-        }
-    }
-
-private:
-    std::set< task_id > m_present_task_ids;
-    task_queue m_task_queue;
-    mutable std::mutex m_tasks_mutex;
-    mutable std::condition_variable m_tasks_status_cv;
-};
+template< typename Rep, typename Period >
+struct is_duration< std::chrono::duration< Rep, Period > > : std::true_type{};
 
 } //details
 
@@ -241,20 +37,16 @@ public:
     ~thread_pool();
 
     template< typename Func, typename... Args >
-    task_result< typename std::result_of< Func( Args... ) >::type >
-    add_task( const task_priority& priority, Func&& func, Args&&... args  );
+    auto add_task( Func&& func, Args&&... args  ) -> std::future< typename std::result_of< Func( Args... ) >::type >;
 
     // Remove all pending tasks, those being already executed are not affected
-    void clean_pending_tasks() ;
-
-    // Remove queued task with specific id. Returns false in there is no such task_id in queue
-    bool unqueue_task( task_id id ) ;
+    void clean_pending_tasks();
 
     // Total number of tasks, both pending and being executed
-    size_t total_tasks() const ;
+    size_t total_tasks_number() const noexcept;
 
     // Number of pending tasks
-    size_t queue_size() const ;
+    size_t queue_size() const noexcept;
 
     // Block until all tasks are finished. On timeout returns false
     template< typename TimeoutType = std::chrono::milliseconds >
@@ -269,10 +61,10 @@ public:
     void schedule_remove_workers( uint32_t number );
 
     // Total number of workers
-    size_t workers_number() const ;
+    size_t workers_number() const noexcept;
 
     // Number of threads scheduled to be removed
-    size_t workers_to_remove() const ;
+    size_t workers_to_remove() const noexcept;
 
     // Static thread_pool created with default constructor
     static thread_pool& get_instance();
@@ -280,55 +72,82 @@ public:
 private:
     void add_worker();
     void clean_removed_workers();
-    bool thread_needs_to_break() ;
 
 private:
     std::atomic_bool m_is_running{ true };
-    uint64_t m_workers_number{ 0 };
-    uint64_t m_workers_to_remove{ 0 };
+    size_t m_workers_number{ 0 };
+    size_t m_workers_to_remove{ 0 };
 
-    details::task_handler m_task_handler;
+    size_t m_tasks_number{ 0 };
+
     std::vector< std::thread > m_worker_pool;
+    std::deque< std::function< void() > > m_pending_tasks;
 
+    mutable std::mutex m_tasks_mutex;
     mutable std::mutex m_workers_mutex;
     mutable std::condition_variable m_worker_cv;
+    mutable std::condition_variable m_tasks_status_cv;
 };
 
 ///// implementation
 
 template< typename Func, typename... Args >
-task_result< typename std::result_of< Func( Args... ) >::type >
-thread_pool::add_task( const task_priority& priority, Func&& func, Args&&... args  )
+auto thread_pool::add_task( Func&& func, Args&&... args  ) -> std::future< typename std::result_of< Func( Args... ) >::type >
 {
     if( !m_is_running )
     {
         throw std::logic_error{ "Object is being destroyed" };
     }
 
+    using Task = std::packaged_task< typename std::result_of<Func( Args... ) >::type() >;
+    auto task = std::make_shared< Task >( std::bind( std::forward< Func >( func ), std::forward< Args >( args )... ) );
+    auto result = task->get_future();
+
     {
-        std::lock_guard< std::mutex >{ m_workers_mutex };
+        std::lock_guard< std::mutex >{ m_tasks_mutex };
+
+        // Remove possibly stopped threads from pool
         clean_removed_workers();
+
+        m_pending_tasks.emplace_back( [ task, this ]
+                                      {
+                                          if( task->valid() )
+                                            ( *task )();
+
+                                           std::lock_guard< std::mutex >{ m_tasks_mutex };
+                                          --m_tasks_number;
+                                      } );
+
+        ++m_tasks_number;
     }
-
-    using PackTask = std::packaged_task< typename std::result_of<Func( Args... ) >::type() >;
-    auto pack_task = std::make_shared< PackTask >( std::bind( std::forward< Func >( func ), std::forward< Args >( args )... ) );
-    auto result = pack_task->get_future();
-
-    task_id id{ m_task_handler.add_task( priority, [ pack_task ]
-        {
-            ( *pack_task )();
-        } ) };
 
     m_worker_cv.notify_one();
 
-    return { id, std::move( result ) };
+    return result;
 }
 
 template< typename TimeoutType >
 bool thread_pool::wait_until_finished( const TimeoutType& timeout ) const
 {
-    static_assert( type_traits::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
-    return m_task_handler.wait_until_finished( timeout );
+    static_assert( details::is_duration< TimeoutType >::value, "Timeout should be of type std::chrono" );
+
+    bool result{ true };
+
+    std::unique_lock< std::mutex > l{ m_tasks_mutex };
+
+    if( m_tasks_number )
+    {
+        if( timeout.count() )
+        {
+            result = m_tasks_status_cv.wait_for( l, timeout, [ this ](){ return !m_tasks_number; } );
+        }
+        else
+        {
+            m_tasks_status_cv.wait( l, [ this ](){ return !m_tasks_number; } );
+        }
+    }
+
+    return result;
 }
 
 } // concurrency

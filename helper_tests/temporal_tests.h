@@ -85,7 +85,6 @@ TEST_CASE( time_moment_date_time_test )
     DYNAMIC_ASSERT( dayt.sec() == 22 );
     DYNAMIC_ASSERT( dayt.nsec() == 629000000 );
 }
-TEST_CASE_END( time_moment_date_time_test )
 
 TEST_CASE( time_ratio_test )
 {
@@ -204,13 +203,6 @@ TEST_CASE( time_ratio_test )
     }
 
     //auto t = nanosec_t::max();
-}
-TEST_CASE_END( time_ratio_test )
-
-inline void run_all_tests()
-{
-    time_moment_date_time_test();
-    time_ratio_test();
 }
 
 }

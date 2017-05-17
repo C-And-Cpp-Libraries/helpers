@@ -28,26 +28,31 @@ thread_pool::~thread_pool()
             t.join();
         }
     }
+
+    m_tasks_status_cv.notify_all();
 }
 
 void thread_pool::clean_pending_tasks()
 {
-    m_task_handler.clean();
+    std::lock_guard< std::mutex >{ m_tasks_mutex };
+
+    if( !m_pending_tasks.empty() )
+    {
+        m_tasks_number -= m_pending_tasks.size();
+        m_pending_tasks.clear();
+    }
 }
 
-bool thread_pool::unqueue_task( task_id id )
+size_t thread_pool::total_tasks_number() const noexcept
 {
-    return m_task_handler.erase_task( id );
+    std::lock_guard< std::mutex >{ m_tasks_mutex };
+    return m_tasks_number;
 }
 
-size_t thread_pool::total_tasks() const
+size_t thread_pool::queue_size() const noexcept
 {
-    return m_task_handler.total_tasks();
-}
-
-size_t thread_pool::queue_size() const
-{
-    return m_task_handler.queued_tasks();
+    std::lock_guard< std::mutex >{ m_tasks_mutex };
+    return m_pending_tasks.size();
 }
 
 void thread_pool::add_workers( uint32_t number )
@@ -66,8 +71,9 @@ void thread_pool::add_workers( uint32_t number )
         for( size_t thread{ 0 }; thread < number; ++thread )
         {
             add_worker();
-            ++m_workers_number;
         }
+
+        m_workers_number += number;
     }
 }
 
@@ -100,13 +106,13 @@ void thread_pool::schedule_remove_workers( uint32_t number )
     }
 }
 
-size_t thread_pool::workers_number() const
+size_t thread_pool::workers_number() const noexcept
 {
     std::lock_guard< std::mutex >{ m_workers_mutex };
     return m_workers_number;
 }
 
-size_t thread_pool::workers_to_remove() const
+size_t thread_pool::workers_to_remove() const noexcept
 {
     std::lock_guard< std::mutex >{ m_workers_mutex };
     return m_workers_to_remove;
@@ -126,38 +132,66 @@ void thread_pool::add_worker()
         {
             while( m_is_running )
             {
-                {
-                    std::unique_lock< std::mutex > l{ m_workers_mutex };
+                std::function< void() > task;
 
-                    // Check after waiting
-                    if( thread_needs_to_break() )
+                {
+                    std::unique_lock< std::mutex > l{ m_tasks_mutex };
+
+                    // Check before potentially waiting for a task
+                    if( !m_is_running )
                     {
                         break;
                     }
 
-                    // If there's no pending tasks, wait for them/for a signal to be removed/for object destruction
-                    if( !m_task_handler.queued_tasks() )
                     {
-                        m_worker_cv.wait( l, [ this ]()
+                        std::lock_guard< std::mutex >{ m_workers_mutex };
+                        if( m_workers_to_remove )
                         {
-                            if( m_task_handler.queued_tasks() )
-                            {
-                                return true;
-                            }
-
-                            return  m_workers_to_remove || !m_is_running;
-                        } );
-
-                        // Check after waiting
-                        if( thread_needs_to_break() )
-                        {
+                            --m_workers_to_remove;
                             break;
                         }
                     }
+
+                    // If there's no pending tasks, wait for them/for a signal to be removed/for object destruction
+                    if( m_pending_tasks.empty() )
+                    {
+                        m_worker_cv.wait( l, [ this ](){
+                            std::lock_guard< std::mutex >{ m_workers_mutex };
+                            return !m_pending_tasks.empty() || m_workers_to_remove || !m_is_running; } );
+
+                        // Check after waiting
+                        if( !m_is_running )
+                        {
+                            break;
+                        }
+
+                        {
+                            std::lock_guard< std::mutex >{ m_workers_mutex };
+                            if( m_workers_to_remove )
+                            {
+                                --m_workers_to_remove;
+                                break;
+                            }
+                        }
+                    }
+
+                    task = std::move( m_pending_tasks.front() );
+                    m_pending_tasks.pop_front();
                 }
 
-                // Execute next task
-                m_task_handler.run_next_task();
+                // Execute task
+                try
+                {
+                    task();
+                }
+                catch( const std::bad_function_call& ){}
+
+                // If there are no tasks left, notify threads waiting for the end of execution
+                std::lock_guard< std::mutex >{ m_tasks_mutex };
+                if( !m_tasks_number )
+                {
+                    m_tasks_status_cv.notify_all();
+                }
             }
         }
     };
@@ -172,22 +206,6 @@ void thread_pool::clean_removed_workers()
                                []( const std::thread& t ){ return !t.joinable(); } );
 
     m_worker_pool.erase( end, m_worker_pool.end() );
-}
-
-bool thread_pool::thread_needs_to_break()
-{
-    if( !m_is_running )
-    {
-        return true;
-    }
-
-    if( m_workers_to_remove )
-    {
-        --m_workers_to_remove;
-        return true;
-    }
-
-    return false;
 }
 
 } // concurrency
