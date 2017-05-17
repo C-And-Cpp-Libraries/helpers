@@ -10,6 +10,7 @@
 #include <condition_variable>
 
 #include "../type_traits/type_traits.h"
+#include "../class/non_copyable.h"
 
 namespace helpers
 {
@@ -17,19 +18,10 @@ namespace helpers
 namespace concurrency
 {
 
-namespace details
-{
-
-} //details
-
-class thread_pool
+class thread_pool : helpers::classes::non_copyable_non_movable
 {
 public:
     explicit thread_pool( size_t workers_number = std::thread::hardware_concurrency() );
-    thread_pool( const thread_pool& ) = delete;
-    thread_pool( thread_pool&& ) = delete;
-    thread_pool& operator==( const thread_pool& ) = delete;
-    thread_pool& operator==( thread_pool&& ) = delete;
     ~thread_pool();
 
     template< typename Func, typename... Args >
