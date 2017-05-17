@@ -202,7 +202,7 @@ TEST_CASE( time_ratio_test )
         DYNAMIC_ASSERT( ns.count() == 1 && ms.to_date_time().nsec() == 629000001 );
     }
 
-    //auto t = nanosec_t::max();
+    auto t = nanosec_t::max();
 }
 
 }
