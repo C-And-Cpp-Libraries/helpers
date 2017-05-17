@@ -14,6 +14,10 @@ namespace helpers
 namespace benchmarking
 {
 
+/// \brief A thread safe time duration samples storage class,
+/// capable of storing time data sorted by keys.
+/// Can calucale average time for the specified key.
+
 template< typename _key,
           typename _sample_duration = std::chrono::nanoseconds,
           typename _clock = std::chrono::system_clock,
@@ -57,6 +61,7 @@ private:
     };
 
 public:
+    // If max_samples is 0, the number of samples is unlimited, otherwise the circular buffer approach will be used.
     explicit sample_storage( size_t max_samples = 0 ) noexcept : m_max_samples( max_samples ){}
 
     void add_timestamp( _key_in key )

@@ -12,6 +12,9 @@ namespace helpers
 
 namespace benchmarking
 {
+/// \brief A wrapper around called function,
+/// returns elapsed time in specified std::duration.
+/// Uses std::chrono::high_resolution_clock under the hood
 
 template< typename duration_result_type,
           typename Func, typename... Args,
@@ -29,6 +32,8 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> duration_result_type
   return std::chrono::duration_cast< duration_result_type >( result );
 }
 
+/// \brief Same as above, but for functions with non-void return values.
+
 template< typename duration_result_type,
           typename Func, typename... Args,
           typename = type_traits::enable_if_duration< duration_result_type >,
@@ -45,6 +50,9 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
 
   return std::make_pair( result, std::forward< decltype( return_val ) >( return_val ) );
 }
+
+/// \brief A non-copyable and non-movable RAII class used
+/// to call execute_on_destroy callback  upon it's destruction.
 
 template< typename _duration_type,
           typename _clock_type,
@@ -76,6 +84,8 @@ private:
     pred_type m_pred;
     typename clock_type::time_point m_start;
 };
+
+/// \brief Convenience typedefs
 
 using nanosec_scope_time_handle  = scope_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
 using microsec_scope_time_handle = scope_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
