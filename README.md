@@ -137,7 +137,7 @@ Throws:
 ```
 void schedule_remove_workers( uint32_t number )
 ```
-Schedules threads to be removed from the pool. Threads will be stopped only after finishing their current job The actual stopped threads' objects will be removed after adding a new job. 
+Schedules threads to be removed from the pool. Threads will be stopped only after finishing their current job. The actual stopped threads' objects will be removed after adding a new job. 
 
 Throws:
 * ```std::logic_error``` if obejct is being destroyed.
@@ -174,7 +174,7 @@ polymorph( polymorph&& other ) noexcept
 polymorph& operator=( const polymorph& other ) noexcept
 polymorph& operator=( polymorph&& other ) noexcept
 ```
-Basic constructors and oepratos. Copy or move only the pointer to the data.
+Basic constructors and operatos. Copy or move only the pointer to the data.
 
 ```
 template< typename T, typename = disable_if_polymorph< T > >
@@ -221,7 +221,7 @@ Returns true if the stored type is similar to ```T```.
 ```
 const std::type_info& type_info() const noexcept
 ```
-Returns type_info of the stored data(or ```typeid( void )```) if empty.
+Returns type_info of the stored data(or ```typeid( void )``` if empty ).
 
 ```
 bool empty() const noexcept
@@ -333,7 +333,7 @@ Creates date_time class initialized with the stored time.
 ```
 static constexpr time_ratio< tick_cnt, sec_period > max() noexcept
 ```
-Returns an instance of the class initialized with the maximum time value that doesn't case count() overflow.
+Returns an instance of the class initialized with the maximum time value that doesn't cause count() overflow.
 
 #### struct verbose_date_time
 ```
