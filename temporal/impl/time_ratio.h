@@ -1,6 +1,8 @@
 #ifndef _HELPERS_TIME_RATIO_H_
 #define _HELPERS_TIME_RATIO_H_
 
+#define NOMINMAX
+
 #include "time_details.h"
 #include "date_time.h"
 #include "../../type_traits/type_traits.h"
@@ -104,7 +106,7 @@ public:
     constexpr date_time to_date_time() const noexcept; // convert to date_time
 
     // limits
-    static constexpr time_ratio< tick_cnt, sec_period > max() noexcept; // max possible value for the current tick count and period
+    static constexpr const time_ratio< tick_cnt, sec_period >& max() noexcept; // max possible value for the current tick count and period
 
     // operators
     template< time_type other_tick_cnt, time_type other_sec_period >
@@ -125,6 +127,7 @@ public:
 private:
     time_moment m_time;
     time_type m_count{ 0 }; // count of units for the current tick count and period
+    static const time_ratio< tick_cnt, sec_period > m_max;
 };
 
 template< time_type ltk, time_type lp, time_type rtk, time_type rp >

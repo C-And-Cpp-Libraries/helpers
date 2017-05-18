@@ -251,9 +251,12 @@ constexpr date_time time_ratio< tick_cnt, period >::to_date_time() const noexcep
 }
 
 template< time_type tick_cnt, time_type period >
-constexpr time_ratio< tick_cnt, period > time_ratio< tick_cnt, period >::max() noexcept
+const time_ratio< tick_cnt, period > time_ratio< tick_cnt, period >::m_max( std::numeric_limits< time_type >::max() );
+
+template< time_type tick_cnt, time_type period >
+constexpr const time_ratio< tick_cnt, period >& time_ratio< tick_cnt, period >::max() noexcept
 {
-    return time_ratio< tick_cnt, period >{ std::numeric_limits< time_type >::max() };
+    return time_ratio< tick_cnt, period >::m_max;
 }
 
 template< time_type tick_cnt, time_type period >

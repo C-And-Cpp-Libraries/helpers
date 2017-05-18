@@ -15,7 +15,7 @@ namespace benchmarking
 /// \brief A wrapper around called function,
 /// returns elapsed time in specified std::duration.
 /// Uses std::chrono::high_resolution_clock under the hood
-///
+
 template< typename duration_result_type,
           typename Func, typename... Args,
           typename = type_traits::enable_if_returns_type< void, Func, Args... > >
@@ -48,7 +48,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
 /// \brief A non-copyable and non-movable RAII class used
 /// to call execute_on_destroy callback  upon it's destruction.
 /// callback must not throw any exceptions, as it's called in destructor
-///
+
 template< typename _duration_type, typename _clock_type >
 class scope_time_handle final : public classes::non_copyable_non_movable
 {

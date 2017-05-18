@@ -1,6 +1,8 @@
 #ifndef _HELPERS_SAMPLE_STORAGE_IMPL_H_
 #define _HELPERS_SAMPLE_STORAGE_IMPL_H_
 
+#define NOMINMAX
+
 #include "../sample_storage.h"
 
 namespace helpers
