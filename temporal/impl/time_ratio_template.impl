@@ -85,10 +85,13 @@ constexpr time_ratio< tick_cnt, period >::time_ratio( const timespec& ts ) noexc
 
 // ctor from std::chrono::duration( aka std::chrono::seconds etc )
 template< time_type tick_cnt, time_type period >
-template< typename std_duration_type, typename >
+template< typename std_duration_type >
 constexpr time_ratio< tick_cnt, period >::time_ratio( const std_duration_type& d,const since& start_point ) noexcept :
     m_time( dur_to_time_moment( d, start_point ) ),
-    m_count( ratio_count< tick_cnt, period >( m_time ) ){}
+    m_count( ratio_count< tick_cnt, period >( m_time ) )
+{
+    static_assert( type_traits::is_duration< std_duration_type >::value, "Invalid duration type" );
+}
 
 // conversion ctors from other time_ratio with possibly different tick_count and period
 template< time_type tick_cnt, time_type period >
@@ -178,9 +181,11 @@ void time_ratio< tick_cnt, period >::from_timespec( const timespec& time ) noexc
 
 // conversion from std::chrono::duration( aka std::chrono::seconds etc )
 template< time_type tick_cnt, time_type period >
-template< typename std_duration_type, typename >
+template< typename std_duration_type >
 void time_ratio< tick_cnt, period >::from_std_duration( const std_duration_type& d, const since& start_point ) noexcept
 {
+    static_assert( type_traits::is_duration< std_duration_type >::value, "Invalid duration type" );
+
     m_time = dur_to_time_moment( d, start_point );
     m_count = ratio_count< tick_cnt, period >( m_time );
 }
@@ -216,9 +221,11 @@ constexpr timespec time_ratio< tick_cnt, period >::to_timespec() const noexcept
 
 // conversion to std::chrono::duration of type std_duration_type
 template< time_type tick_cnt, time_type period >
-template< typename std_duration_type, typename >
+template< typename std_duration_type >
 constexpr std_duration_type time_ratio< tick_cnt, period >::to_std_duration() const noexcept
 {
+    static_assert( type_traits::is_duration< std_duration_type >::value, "Invalid duration type" );
+
     using namespace std::chrono;
     return duration_cast< std_duration_type >( seconds{ m_time.jsec() } ) +
            duration_cast< std_duration_type >( nanoseconds{ m_time.nsec() } );

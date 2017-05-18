@@ -58,7 +58,7 @@ public:
     constexpr explicit time_ratio( const timeval& tv ) noexcept;
     constexpr explicit time_ratio( const timespec& ts ) noexcept;
 
-    template< typename std_duration_type, typename = type_traits::enable_if_duration< std_duration_type > >
+    template< typename std_duration_type >
     constexpr explicit time_ratio( const std_duration_type& duration, const since& start_point ) noexcept;
 
     template< time_type other_tick_cnt, time_type other_sec_period >
@@ -83,7 +83,7 @@ public:
     void from_timeval( const timeval& time ) noexcept;
     void from_timespec( const timespec& time ) noexcept;
 
-    template< typename std_duration_type, typename = type_traits::enable_if_duration< std_duration_type > >
+    template< typename std_duration_type >
     void from_std_duration( const std_duration_type& duration, const since& start_point ) noexcept;
 
     // returns curr_time_ratio class initialized with the current time since julian day 0
@@ -94,8 +94,7 @@ public:
     constexpr timeval to_timeval() const noexcept;
     constexpr timespec to_timespec() const noexcept;
 
-    template< typename std_duration_type = curr_std_duration_type,
-              typename = type_traits::enable_if_duration< std_duration_type > >
+    template< typename std_duration_type = curr_std_duration_type >
     constexpr std_duration_type to_std_duration() const noexcept; // since julian
 
     operator curr_std_duration_type() const noexcept{ return to_std_duration< curr_std_duration_type >(); }

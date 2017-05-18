@@ -9,8 +9,8 @@ namespace helpers
 namespace benchmarking
 {
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-void sample_storage< k, dur, cl, e1, e2 >::time_data::update( const sample_type& s, size_t max_samples )
+template< typename k, typename dur, typename cl >
+void sample_storage< k, dur, cl >::time_data::update( const sample_type& s, size_t max_samples )
 {
     if( sample_type::max() - sum < s )
     {
@@ -28,8 +28,8 @@ void sample_storage< k, dur, cl, e1, e2 >::time_data::update( const sample_type&
     sum += s;
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-void sample_storage< k, dur, cl, e1, e2 >::add_timestamp( _key_in key )
+template< typename k, typename dur, typename cl >
+void sample_storage< k, dur, cl >::add_timestamp( _key_in key )
 {
     auto t = clock_type::now();
 
@@ -54,22 +54,22 @@ void sample_storage< k, dur, cl, e1, e2 >::add_timestamp( _key_in key )
     }
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-bool sample_storage< k, dur, cl, e1, e2 >::remove_key_data( _key_in key ) noexcept
+template< typename k, typename dur, typename cl >
+bool sample_storage< k, dur, cl >::remove_key_data( _key_in key ) noexcept
 {
     std::lock_guard< std::mutex >{ m_mutex };
     return ( m_waiting_samples.erase( key ) || m_data.erase( key ) );
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-bool sample_storage< k, dur, cl, e1, e2 >::key_present( _key_in key ) const noexcept
+template< typename k, typename dur, typename cl >
+bool sample_storage< k, dur, cl >::key_present( _key_in key ) const noexcept
 {
     std::lock_guard< std::mutex >{ m_mutex };
     return ( m_waiting_samples.count( key ) || m_data.count( key ) );
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-auto sample_storage< k, dur, cl, e1, e2 >::average_time( _key_in key ) const -> sample_type
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::average_time( _key_in key ) const -> sample_type
 {
     std::lock_guard< std::mutex >{ m_mutex };
 
@@ -82,8 +82,8 @@ auto sample_storage< k, dur, cl, e1, e2 >::average_time( _key_in key ) const -> 
     return it->second.average();
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-auto sample_storage< k, dur, cl, e1, e2 >::samples( _key_in key ) const -> const std::deque< sample_type >&
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::samples( _key_in key ) const -> const std::deque< sample_type >&
 {
     std::lock_guard< std::mutex >{ m_mutex };
 
@@ -96,8 +96,8 @@ auto sample_storage< k, dur, cl, e1, e2 >::samples( _key_in key ) const -> const
     return it->second.samples;
 }
 
-template< typename k, typename dur, typename cl, typename e1, typename e2 >
-auto sample_storage< k, dur, cl, e1, e2 >::instance() noexcept -> sample_storage< key_type, sample_type, clock_type >*
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::instance() noexcept -> sample_storage< key_type, sample_type, clock_type >*
 {
     static sample_storage< key_type, sample_type, clock_type > s;
     return &s;

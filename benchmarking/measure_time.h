@@ -15,49 +15,46 @@ namespace benchmarking
 /// \brief A wrapper around called function,
 /// returns elapsed time in specified std::duration.
 /// Uses std::chrono::high_resolution_clock under the hood
-
+///
 template< typename duration_result_type,
           typename Func, typename... Args,
-          typename = type_traits::enable_if_duration< duration_result_type >,
           typename = type_traits::enable_if_returns_type< void, Func, Args... > >
 auto measure_exec_time( Func&& f, Args&&... args ) -> duration_result_type
 {
-  auto start = std::chrono::high_resolution_clock::now();
+    static_assert( type_traits::is_duration< duration_result_type >::value, "Invalid duration type" );
 
-  details::_exec_func( std::forward< Func >( f ), std::forward< Args >( args )... );
-
-  auto result = std::chrono::high_resolution_clock::now() - start;
-
-  return std::chrono::duration_cast< duration_result_type >( result );
+    auto start = std::chrono::high_resolution_clock::now();
+    details::_exec_func( std::forward< Func >( f ), std::forward< Args >( args )... );
+    auto result = std::chrono::high_resolution_clock::now() - start;
+    return std::chrono::duration_cast< duration_result_type >( result );
 }
 
 /// \brief Same as above, but for functions with non-void return values.
 
 template< typename duration_result_type,
           typename Func, typename... Args,
-          typename = type_traits::enable_if_duration< duration_result_type >,
           typename = type_traits::disable_if_returns_type< void, Func, Args... > >
 auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result_type, typename std::result_of< Func(Args...) >::type >
 {
-  auto start = std::chrono::high_resolution_clock::now();
+    static_assert( type_traits::is_duration< duration_result_type >::value, "Invalid duration type" );
 
-  auto return_val = details::_exec_func_result( std::forward< Func >( f ), std::forward< Args >( args )... );
-
-  auto diff = std::chrono::high_resolution_clock::now() - start;
-  duration_result_type result = std::chrono::duration_cast< duration_result_type >( diff );
-
-  return std::make_pair( result, std::forward< decltype( return_val ) >( return_val ) );
+    auto start = std::chrono::high_resolution_clock::now();
+    auto return_val = details::_exec_func_result( std::forward< Func >( f ), std::forward< Args >( args )... );
+    auto diff = std::chrono::high_resolution_clock::now() - start;
+    duration_result_type result = std::chrono::duration_cast< duration_result_type >( diff );
+    return std::make_pair( result, std::forward< decltype( return_val ) >( return_val ) );
 }
 
 /// \brief A non-copyable and non-movable RAII class used
 /// to call execute_on_destroy callback  upon it's destruction.
 /// callback must not throw any exceptions, as it's called in destructor
-template< typename _duration_type,
-          typename _clock_type,
-          typename = type_traits::enable_if_duration< _duration_type >,
-          typename = type_traits::enable_if_clock< _clock_type > >
+///
+template< typename _duration_type, typename _clock_type >
 class scope_time_handle final : public classes::non_copyable_non_movable
 {
+    static_assert( type_traits::is_duration< _duration_type >::value, "Invalid duration type" );
+    static_assert( type_traits::is_clock< _clock_type >::value, "Invalid clock type" );
+
 public:
     using duration_type = _duration_type;
     using clock_type = _clock_type;

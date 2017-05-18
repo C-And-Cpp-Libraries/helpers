@@ -20,11 +20,12 @@ namespace benchmarking
 
 template< typename _key,
           typename _sample_duration = std::chrono::nanoseconds,
-          typename _clock = std::chrono::high_resolution_clock,
-          typename = type_traits::enable_if_duration< _sample_duration >,
-          typename = type_traits::enable_if_clock< _clock > >
+          typename _clock = std::chrono::high_resolution_clock >
 class sample_storage
 {
+    static_assert( type_traits::is_duration< _sample_duration >::value, "Invalid duration type" );
+    static_assert( type_traits::is_clock< _clock >::value, "Invalid clock type" );
+
 public:
     using key_type = details::decay_t< _key >;
     using time_point = typename _clock::time_point;
