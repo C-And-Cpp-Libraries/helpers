@@ -51,7 +51,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
 
 /// \brief A non-copyable and non-movable RAII class used
 /// to call execute_on_destroy callback  upon it's destruction.
-
+/// callback must not throw any exceptions, as it's called in destructor
 template< typename _duration_type,
           typename _clock_type,
           typename = type_traits::enable_if_duration< _duration_type >,

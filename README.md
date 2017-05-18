@@ -20,7 +20,7 @@ Same as above, but for functions with non-void return values.
 template< duration_type, clock_type >
 class scope_time_handle
 ```
-A non-copyable and non-movable RAII class used to call ```execute_on_destroy``` callback of type ```std::function< void( const duration_type& ) >``` upon it's destruction.
+A non-copyable and non-movable RAII class used to call ```execute_on_destroy``` callback of type ```std::function< void( const duration_type& ) >``` upon it's destruction. IMPORTANT: callback must not throw any exceptions, as it's called in destructor
 
 ```
 explicit scope_time_handle::scope_time_handle( const pred_type& execute_on_destroy )
@@ -40,7 +40,7 @@ The following predefined typedefs are provided:
 ```
 template< typename key,
           typename sample_duration = std::chrono::nanoseconds,
-          typename clock = std::chrono::system_clock >
+          typename clock = std::chrono::high_resolution_clock >
 class sample_storage
 ``` 
 A thread safe time duration samples storage class, capable of storing time data sorted by keys. Can calculate average time for the specified key.
@@ -72,7 +72,7 @@ Throws:
 * ```std::out_of_range``` if key is not found.
 
 ```
-const std::deque< sample_type >& samples( key_type key ) const noexcept
+const std::deque< sample_type >& samples( key_type key ) const
 ```
 Returns timestamps related to key.
 

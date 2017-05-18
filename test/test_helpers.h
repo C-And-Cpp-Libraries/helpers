@@ -27,8 +27,7 @@ if( !( val ) ) throw helpers::test::test_error{ ERROR_TEXT( "Assert failed: " + 
 // Exception policy
 #define CHECK_NOTHROW( Func )\
 try{ Func; }\
-catch( const std::runtime_error& e ){ throw DETAILS::test_error{ ERROR_TEXT( "Exception thrown : " + e.what() ) }; }\
-catch( const std::exception& ){ throw DETAILS::test_error{ ERROR_TEXT( "Exception thrown" ) }; }\
+catch( ... ){ throw DETAILS::test_error{ ERROR_TEXT( "Exception thrown" ) }; }\
 
 #define CHECK_THROW( Func )\
 try{ Func; throw DETAILS::test_error{ "Exception not thrown" }; }\

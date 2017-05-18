@@ -20,7 +20,7 @@ namespace benchmarking
 
 template< typename _key,
           typename _sample_duration = std::chrono::nanoseconds,
-          typename _clock = std::chrono::system_clock,
+          typename _clock = std::chrono::high_resolution_clock,
           typename = type_traits::enable_if_duration< _sample_duration >,
           typename = type_traits::enable_if_clock< _clock > >
 class sample_storage
@@ -39,9 +39,9 @@ private:
         sample_type sum{ sample_type{ 0 } };
         std::deque< sample_type > samples;
 
-        void update( const sample_type& s, size_t max_samples ) noexcept
+        void update( const sample_type& s, size_t max_samples )
         {
-            if( std::numeric_limits< sample_type >::max() - sum < s )
+            if( sample_type::max() - sum < s )
             {
                 throw std::overflow_error{ "Adding the timestamp would result in average calc overflow" };
             }
@@ -108,7 +108,7 @@ public:
         return it->second.average();
     }
 
-    const std::deque< sample_type >& samples( _key_in key ) const noexcept
+    const std::deque< sample_type >& samples( _key_in key ) const
     {
         std::lock_guard< std::mutex >{ m_mutex };
 
