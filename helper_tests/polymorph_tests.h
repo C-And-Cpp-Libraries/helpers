@@ -4,11 +4,10 @@
 #include <iostream>
 #include <functional>
 
-#include "../polymorph/polymorph.h"
 #include "../test.h"
+#include "../polymorph/polymorph.h"
 
 using namespace helpers;
-using namespace helpers::test;
 
 namespace polymorph_tests
 {

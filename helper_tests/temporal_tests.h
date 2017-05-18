@@ -6,9 +6,6 @@
 
 #include "../test.h"
 
-using namespace helpers;
-using namespace helpers::test;
-
 #include <iostream>
 #include <string>
 #include <stdexcept>

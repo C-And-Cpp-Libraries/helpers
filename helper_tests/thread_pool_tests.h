@@ -7,8 +7,6 @@
 #include "../test.h"
 #include "../concurrency/thread_pool.h"
 
-using namespace helpers;
-using namespace helpers::test;
 using namespace helpers::concurrency;
 
 namespace thread_pool_tests

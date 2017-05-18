@@ -21,11 +21,11 @@ TEST_CASE( measure_exec_time_test )
     std::pair< dur_type, int > result;
 
     CHECK_NOTHROW( dur = measure_exec_time< dur_type >( test_func_void ) )
-    DYNAMIC_ASSERT( dur.count() == 100 )
+            DYNAMIC_ASSERT( dur.count() == 100 )
 
-     CHECK_NOTHROW( result = measure_exec_time< dur_type >( test_func_int, i ) )
-     DYNAMIC_ASSERT( result.first.count() == 100  )
-     DYNAMIC_ASSERT( result.second == i + 1 )
+            CHECK_NOTHROW( result = measure_exec_time< dur_type >( test_func_int, i ) )
+            DYNAMIC_ASSERT( result.first.count() == 100  )
+            DYNAMIC_ASSERT( result.second == i + 1 )
 }
 
 TEST_CASE( scope_time_handle_test )
@@ -42,8 +42,8 @@ TEST_CASE( scope_time_handle_test )
     millisec_scope_time_handle::pred_type p_uninit;
 
     CHECK_THROW( millisec_scope_time_handle h1{ p_uninit } )
-    CHECK_NOTHROW( test_func() )
-    DYNAMIC_ASSERT( result.count() == 100 )
+            CHECK_NOTHROW( test_func() )
+            DYNAMIC_ASSERT( result.count() == 100 )
 }
 
 TEST_CASE( sample_storage_test )
@@ -52,25 +52,25 @@ TEST_CASE( sample_storage_test )
     sample_storage_type s;
 
     CHECK_THROW( s.samples( 2 ) )
-    CHECK_THROW( s.average_time( 2 ) )
-    DYNAMIC_ASSERT( !s.key_present( 2 ) )
+            CHECK_THROW( s.average_time( 2 ) )
+            DYNAMIC_ASSERT( !s.key_present( 2 ) )
 
-    for( int i{ 0 }; i < 100; ++i )
+            for( int i{ 0 }; i < 100; ++i )
     {
         CHECK_NOTHROW( s.add_timestamp( 0 ) )
-        CHECK_NOTHROW( s.add_timestamp( 1 ) )
-        std::this_thread::sleep_for( sample_storage_type::sample_type{ 100 } );
+                CHECK_NOTHROW( s.add_timestamp( 1 ) )
+                std::this_thread::sleep_for( sample_storage_type::sample_type{ 100 } );
         CHECK_NOTHROW( s.add_timestamp( 0 ) )
-        CHECK_NOTHROW( s.add_timestamp( 1 ) )
+                CHECK_NOTHROW( s.add_timestamp( 1 ) )
     }
 
     sample_storage_type::sample_type avr1, avr2;
     DYNAMIC_ASSERT( s.key_present( 0 ) && s.key_present( 1 ) )
-    CHECK_NOTHROW( s.samples( 0 ); s.samples( 1 ); )
+            CHECK_NOTHROW( s.samples( 0 ); s.samples( 1 ); )
     DYNAMIC_ASSERT( s.samples( 0 ).size() == 100 && s.samples( 1 ).size() == 100 )
-    CHECK_NOTHROW( avr1 = s.average_time( 0 ); avr2 = s.average_time( 1 ); )
+            CHECK_NOTHROW( avr1 = s.average_time( 0 ); avr2 = s.average_time( 1 ); )
     DYNAMIC_ASSERT( avr1.count() >= 100 && avr1.count() <= 200 )
-    DYNAMIC_ASSERT( avr2.count() >= 100 && avr2.count() <= 200 )
+            DYNAMIC_ASSERT( avr2.count() >= 100 && avr2.count() <= 200 )
 }
 
 }
