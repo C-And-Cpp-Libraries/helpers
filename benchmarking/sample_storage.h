@@ -39,23 +39,7 @@ private:
         sample_type sum{ sample_type{ 0 } };
         std::deque< sample_type > samples;
 
-        void update( const sample_type& s, size_t max_samples )
-        {
-            if( sample_type::max() - sum < s )
-            {
-                throw std::overflow_error{ "Adding the timestamp would result in average calc overflow" };
-            }
-
-            samples.emplace_back( s );
-
-            if( max_samples && samples.size() == max_samples )
-            {
-                sum -= samples.front();
-                samples.pop_front();
-            }
-
-            sum += s;
-        }
+        void update( const sample_type& s, size_t max_samples );
 
         sample_type average() const noexcept{ return sum / samples.size(); }
     };
@@ -64,74 +48,14 @@ public:
     // If max_samples is 0, the number of samples is unlimited, otherwise the circular buffer approach will be used.
     explicit sample_storage( size_t max_samples = 0 ) noexcept : m_max_samples( max_samples ){}
 
-    void add_timestamp( _key_in key )
-    {
-        auto t = clock_type::now();
+    void add_timestamp( _key_in key );
+    bool remove_key_data( _key_in key ) noexcept;
 
-        std::lock_guard< std::mutex >{ m_mutex };
+    sample_type average_time( _key_in key ) const;
+    bool key_present( _key_in key ) const noexcept;
+    const std::deque< sample_type >& samples( _key_in key ) const;
 
-        auto waiting_it = m_waiting_samples.find( key );
-        if( waiting_it == m_waiting_samples.end() )
-        {
-            m_waiting_samples.emplace( key, t );
-        }
-        else
-        {
-            const time_point& start = waiting_it->second;
-            if( t < start )
-            {
-                throw std::invalid_argument{ "End time should be >= start time" };
-            }
-
-            sample_type sample{ std::chrono::duration_cast< sample_type >( t - start ) };
-            m_waiting_samples.erase( waiting_it );
-            m_data[ key ].update( sample, m_max_samples );
-        }
-    }
-
-    bool remove_key_data( _key_in key ) noexcept
-    {
-        std::lock_guard< std::mutex >{ m_mutex };
-        return ( m_waiting_samples.erase( key ) || m_data.erase( key ) );
-    }
-
-    sample_type average_time( _key_in key ) const
-    {
-        std::lock_guard< std::mutex >{ m_mutex };
-
-        auto it = m_data.find( key );
-        if( it == m_data.end() )
-        {
-            throw std::out_of_range{ "Key not found" };
-        }
-
-        return it->second.average();
-    }
-
-    const std::deque< sample_type >& samples( _key_in key ) const
-    {
-        std::lock_guard< std::mutex >{ m_mutex };
-
-        auto it = m_data.find( key );
-        if( it == m_data.end() )
-        {
-            throw std::out_of_range{ "Key not found" };
-        }
-
-        return it->second.samples;
-    }
-
-    bool key_present( _key_in key ) const noexcept
-    {
-        std::lock_guard< std::mutex >{ m_mutex };
-        return ( m_waiting_samples.count( key ) || m_data.count( key ) );
-    }
-
-    static sample_storage< key_type, sample_type, clock_type >* instance() noexcept
-    {
-        static sample_storage< key_type, sample_type, clock_type > s;
-        return &s;
-    }
+    static sample_storage< key_type, sample_type, clock_type >* instance() noexcept;
 
 private:
     mutable std::mutex m_mutex;
@@ -145,3 +69,5 @@ private:
 }// helpers
 
 #endif
+
+#include "details/sample_storage.impl"
