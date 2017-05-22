@@ -2,7 +2,7 @@
 #define _HELPERS_TEST_TESTS_H_
 
 #include <cassert>
-#include "../test.h"
+#include "../helpers/test.h"
 
 std::pair< bool, bool > call_asserts( bool value, const std::string& text )
 {

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <functional>
 
-#include "../test.h"
-#include "../polymorph/polymorph.h"
+#include "../helpers/test.h"
+#include "../helpers/polymorph/polymorph.h"
 
 using namespace helpers;
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <functional>
 
-#include "../test.h"
+#include "../helpers/test.h"
 
 #include <iostream>
 #include <string>
@@ -12,7 +12,7 @@
 #include <chrono>
 #include <cassert>
 #include <map>
-#include "../temporal/temporal.h"
+#include "../helpers/temporal/temporal.h"
 
 using namespace helpers::temporal;
 using namespace helpers::temporal::details;

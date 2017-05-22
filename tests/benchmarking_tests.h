@@ -3,8 +3,8 @@
 
 #include <thread>
 
-#include "../test.h"
-#include "../benchmarking.h"
+#include "../helpers/test.h"
+#include "../helpers/benchmarking.h"
 
 using namespace helpers::benchmarking;
 

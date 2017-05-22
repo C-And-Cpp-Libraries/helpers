@@ -10,12 +10,14 @@ file( GLOB_RECURSE SOURCES
 "*.h"
 "*.cpp" )
 
-file( GLOB_RECURSE TEST_SOURCES "../test/*" )
-file( GLOB_RECURSE POLY_SOURCES "../polymorph/*" )
-file( GLOB_RECURSE THREAD_POOL_SOURCES "../concurrency/*" )
-file( GLOB_RECURSE TEMPORAL_SOURCES "../temporal/*" )
-file( GLOB_RECURSE BENCHMARKING_SOURCES "../benchmarking/*" )
-file( GLOB_RECURSE TUPLE_SOURCES "../tuple/*" )
+set( SRC_FOLDER "../helpers" )
+
+file( GLOB_RECURSE TEST_SOURCES "${SRC_FOLDER}/test/*" )
+file( GLOB_RECURSE POLY_SOURCES "${SRC_FOLDER}/polymorph/*" )
+file( GLOB_RECURSE THREAD_POOL_SOURCES "${SRC_FOLDER}/concurrency/*" )
+file( GLOB_RECURSE TEMPORAL_SOURCES "${SRC_FOLDER}/temporal/*" )
+file( GLOB_RECURSE BENCHMARKING_SOURCES "${SRC_FOLDER}/benchmarking/*" )
+file( GLOB_RECURSE TUPLE_SOURCES "${SRC_FOLDER}/tuple/*" )
 
 add_executable (${PROJECT}
                 ${SOURCES}
@@ -25,7 +27,7 @@ add_executable (${PROJECT}
                 ${TEMPORAL_SOURCES}
                 ${BENCHMARKING_SOURCES}
                 ${TUPLE_SOURCES}
-				)
+                                )
 if (UNIX)
     target_link_libraries( ${PROJECT} pthread )
 endif (UNIX)

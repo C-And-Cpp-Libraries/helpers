@@ -4,8 +4,8 @@
 #include <iostream>
 #include <functional>
 
-#include "../test.h"
-#include "../concurrency/thread_pool.h"
+#include "../helpers/test.h"
+#include "../helpers/concurrency/thread_pool.h"
 
 using namespace helpers::concurrency;
 

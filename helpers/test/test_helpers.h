@@ -4,12 +4,8 @@
 #include <list>
 #include <string>
 #include <iostream>
-#include <functional>
-#include <memory>
 
 #include "details/test_helpers_details.h"
-#include "../class/non_copyable.h"
-#include "../type_traits/type_traits.h"
 
 namespace helpers
 {
