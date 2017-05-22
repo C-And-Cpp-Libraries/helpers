@@ -19,48 +19,57 @@ namespace test
 
 // Asserts
 #define DYNAMIC_ASSERT( val )\
-if( !( val ) ) throw helpers::test::details::test_error{ ERROR_TEXT( "Assert failed: " + #val ) };\
+if( !( val ) ) throw ___NS_HDET___::test_error{ ___ERROR_TEXT___( "Assert failed: " + #val ) };\
 
 #define DYNAMIC_ASSERT_TEXT( val, error )\
-if( !( val ) ) throw helpers::test::test_error{ ERROR_TEXT( "Assert failed: " +  error ) };\
+if( !( val ) ) throw ___NS_HDET___::test_error{ ___ERROR_TEXT___( "Assert failed: " +  error ) };\
 
 // Exception policy
 #define CHECK_NOTHROW( Func )\
 try{ Func; }\
-catch( ... ){ throw DETAILS::test_error{ ERROR_TEXT( "Exception thrown" ) }; }\
+catch( ... ){ throw ___NS_HDET___::test_error{ ___ERROR_TEXT___( "Exception thrown" ) }; }\
 
 #define CHECK_THROW( Func )\
-try{ Func; throw DETAILS::test_error{ "Exception not thrown" }; }\
-catch( const DETAILS::test_error& e ){ throw DETAILS::test_error{ ERROR_TEXT( e.what() ) }; }\
+try{ Func; throw ___NS_HDET___::test_error{ "Exception not thrown" }; }\
+catch( const ___NS_HDET___::test_error& e ){ throw ___NS_HDET___::test_error{ ___ERROR_TEXT___( e.what() ) }; }\
 catch(...){} \
 
 // Test case
 #define TEST_CASE( test_name ) \
-struct test_name : public helpers::test::details::test_base\
+struct test_name final : public ___NS_HDET___::test_base< test_name >\
 {\
-    test_name(){ run( #test_name ); }\
-    void test() override;\
+    test_name(){ ___run___( #test_name ); }\
+    void ___test_impl___();\
 };\
 test_name test_name##object{};\
-void test_name::test()\
+void test_name::___test_impl___()\
+
+// Test case fixture
+#define TEST_CASE_FIXTURE( test_name, fixture_name ) \
+struct test_name final : public ___NS_HDET___::test_base< test_name >, public fixture_name\
+{\
+    test_name(){ ___run___( #test_name ); }\
+    void ___test_impl___();\
+};\
+test_name test_name##object{};\
+void test_name::___test_impl___()\
 
 }// test
 
 }// helpers
 
-// main()  ifdef
+// main() ifdef
 #ifdef HELPERS_MAIN
 int main( int argc, char* argv[] ){
     struct printer{
-        ~printer(){ std::cout << "Total tests: " << DETAILS::total << std::endl
-                              << "Failed tests: " <<  DETAILS::failed.size() << std::endl;
-                    for( const auto& failed_test : DETAILS::failed ){ std::cout << failed_test << std::endl; }
-                  }
+        ~printer(){ std::cout << "Total tests: " << ___NS_HDET___::___total_tests___ << std::endl
+                              << "Failed tests: " <<  ___NS_HDET___::___failed___.size() << std::endl;
+                    for( const auto& failed_test : ___NS_HDET___::___failed___ ){ std::cout << failed_test << std::endl; } }
     };
     printer p;
 
-    std::cout << SEPARATOR << std::endl;
-    return DETAILS::failed.empty()? 0 : 1;
+    std::cout << ___SEPARATOR___ << std::endl;
+    return ___NS_HDET___::___failed___.empty()? 0 : 1;
 }
 #endif
 

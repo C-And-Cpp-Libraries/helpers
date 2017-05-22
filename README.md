@@ -442,6 +442,7 @@ Lightweight and simple test framework
 * ```CHECK_THROW( Func )``` - a wrapper around tested function, checks it's throw behaviour. Throws ```test_error``` on fail.
 
 * ```TEST_CASE( test_name )``` - Should be used as a wrapper around tests, automatically launches them.
+* ```TEST_CASE_FIXTURE( test_name, fuxture_name )``` - Same as above, but with fixtures support. ```fixture_name``` should be the name of existing struct with default constructor. All public variables and functions of the fixture will be directry available in the scope of the test case.
 
 * ```HELPERS_MAIN``` - A define expanding to main() function. Should be defined before the test_helpers.h include and only in one translation unit.
 

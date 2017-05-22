@@ -23,9 +23,9 @@ TEST_CASE( measure_exec_time_test )
     CHECK_NOTHROW( dur = measure_exec_time< dur_type >( test_func_void ) )
             DYNAMIC_ASSERT( dur.count() >= 99 && dur.count() <= 101 )
 
-            CHECK_NOTHROW( result = measure_exec_time< dur_type >( test_func_int, i ) )
-            DYNAMIC_ASSERT( result.first.count() >= 99 && result.first.count() <= 101 )
-            DYNAMIC_ASSERT( result.second == i + 1 )
+    CHECK_NOTHROW( result = measure_exec_time< dur_type >( test_func_int, i ) )
+    DYNAMIC_ASSERT( result.first.count() >= 99 && result.first.count() <= 101 )
+    DYNAMIC_ASSERT( result.second == i + 1 )
 }
 
 TEST_CASE( scope_time_handle_test )
@@ -42,8 +42,8 @@ TEST_CASE( scope_time_handle_test )
     millisec_scope_time_handle::pred_type p_uninit;
 
     CHECK_THROW( millisec_scope_time_handle h1{ p_uninit } )
-        CHECK_NOTHROW( test_func() )        
-            DYNAMIC_ASSERT( result.count() >= 99 && result.count() <=101 )
+    CHECK_NOTHROW( test_func() )
+    DYNAMIC_ASSERT( result.count() >= 99 && result.count() <=101 )
 }
 
 TEST_CASE( sample_storage_test )
@@ -61,7 +61,7 @@ TEST_CASE( sample_storage_test )
         CHECK_NOTHROW( s.add_timestamp( 1 ) )
         std::this_thread::sleep_for( sample_storage_type::sample_type{ 100 } );
         CHECK_NOTHROW( s.add_timestamp( 0 ) )
-         CHECK_NOTHROW( s.add_timestamp( 1 ) )
+        CHECK_NOTHROW( s.add_timestamp( 1 ) )
     }
 
     sample_storage_type::sample_type avr1, avr2;
