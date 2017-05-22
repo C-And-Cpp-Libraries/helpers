@@ -20,8 +20,10 @@ TEST_CASE( measure_exec_time_test )
     int i{ 0 };
     std::pair< dur_type, int > result;
 
+    auto a = measure_exec_time<std::chrono::seconds>( []()->int{return 1;} );
+
     CHECK_NOTHROW( dur = measure_exec_time< dur_type >( test_func_void ) )
-            DYNAMIC_ASSERT( dur.count() >= 99 && dur.count() <= 101 )
+    DYNAMIC_ASSERT( dur.count() >= 99 && dur.count() <= 101 )
 
     CHECK_NOTHROW( result = measure_exec_time< dur_type >( test_func_int, i ) )
     DYNAMIC_ASSERT( result.first.count() >= 99 && result.first.count() <= 101 )

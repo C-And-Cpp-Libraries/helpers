@@ -3,7 +3,6 @@
 
 #include <functional>
 
-#include "details/measure_time.h"
 #include "../class/non_copyable.h"
 #include "../type_traits/type_traits.h"
 
@@ -24,7 +23,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> duration_result_type
     static_assert( type_traits::is_duration< duration_result_type >::value, "Invalid duration type" );
 
     auto start = std::chrono::high_resolution_clock::now();
-    details::_exec_func( std::forward< Func >( f ), std::forward< Args >( args )... );
+    f( std::forward< Args >( args )... );
     auto result = std::chrono::high_resolution_clock::now() - start;
     return std::chrono::duration_cast< duration_result_type >( result );
 }
@@ -39,7 +38,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
     static_assert( type_traits::is_duration< duration_result_type >::value, "Invalid duration type" );
 
     auto start = std::chrono::high_resolution_clock::now();
-    auto return_val = details::_exec_func_result( std::forward< Func >( f ), std::forward< Args >( args )... );
+    auto return_val = f( std::forward< Args >( args )... );
     auto diff = std::chrono::high_resolution_clock::now() - start;
     duration_result_type result = std::chrono::duration_cast< duration_result_type >( diff );
     return std::make_pair( result, std::forward< decltype( return_val ) >( return_val ) );
