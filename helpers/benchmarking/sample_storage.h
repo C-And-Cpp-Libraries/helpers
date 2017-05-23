@@ -16,7 +16,7 @@ namespace benchmarking
 
 /// \brief A thread safe time duration samples storage class,
 /// capable of storing time data sorted by keys.
-/// Can calucale average time for the specified key.
+/// Can calculate average time for the specified key.
 
 template< typename _key,
           typename _sample_duration = std::chrono::nanoseconds,

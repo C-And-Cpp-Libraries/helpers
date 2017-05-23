@@ -49,7 +49,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
 /// callback must not throw any exceptions, as it's called in destructor
 
 template< typename _duration_type, typename _clock_type >
-class scope_time_handle final : public classes::non_copyable_non_movable
+class scope_time_handle : public classes::non_copyable_non_movable
 {
     static_assert( type_traits::is_duration< _duration_type >::value, "Invalid duration type" );
     static_assert( type_traits::is_clock< _clock_type >::value, "Invalid clock type" );
