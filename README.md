@@ -29,12 +29,12 @@ Basic constructor. ```execute_on_destroy``` will be called upon the object's des
 
 The following predefined typedefs are provided:
 
-* ```nanosec_time_measure_pred``` 
-* ```microsec_time_measure_pred``` 
-* ```millisec_time_measure_pred``` 
-* ```sec_time_measure_pred``` 
-* ```min_time_measure_pred``` 
-* ```hour_time_measure_pred``` 
+* ```nanosec_scope_time_handle``` 
+* ```microsec_scope_time_handle``` 
+* ```millisec_scope_time_handle``` 
+* ```sec_scope_time_handle``` 
+* ```min_scope_time_handle``` 
+* ```hour_scope_time_handle``` 
 
 #### class sample_storage
 ```
@@ -43,7 +43,7 @@ template< typename key,
           typename clock = std::chrono::high_resolution_clock >
 class sample_storage
 ``` 
-A thread safe time duration samples storage class, capable of storing time data sorted by keys. Can calculate average time for the specified key.
+A thread safe time duration sample storage class, capable of storing time data sorted by keys. Can calculate average time for the specified key.
 
 ```
 explicit sample_storage( size_t max_samples = 0 )
@@ -163,7 +163,7 @@ Static thread_pool created with default constructor.
 
 #### class polymorph
 ```
-class thread_pool
+class polymorph
 ``` 
 A type erasure storage class similar to boost::any or QVariant, but with implicit data sharing.
 
@@ -183,13 +183,13 @@ polymorph( T&& t )
 template< typename T, typename = disable_if_polymorph< T > >
 polymorph& operator=( T&& t )
 ```
-Internal data assignment constructor and operator for types different than the class itself.
+Internal data assignment constructor and operator for types different from the class itself.
 
 ```
 template< class T >
 polymorph& deep_copy( const polymorph& source )
 ```
-Creates a deep copy of source's data instead of sharing pointer copy.
+Creates a deep copy of source's data instead of shared pointer copy.
 
 ```
 template< class T >
@@ -281,7 +281,7 @@ Creates time from ```timespec``` class(since epoch).
 
 ```
 template< std_duration_type >
-constexpr explicit time_ratio( const std_duration_type& duration, const since& start_point ) noexcept;
+constexpr explicit time_ratio( const std_duration_type& duration, const since& start_point ) noexcept
 ```
 Creates time from ```std::duration``` class. Depending on ```start_point``` the duration may be added to julian day 0  or epoch year.
 
@@ -348,7 +348,7 @@ struct verbose_date_time
     time_type nsec{ 0 };
 }
 ```
-A convenience struct to be able to query all date and time components and once.
+A convenience struct to be able to query all date and time components at once.
 
 #### struct date_time
 ```
@@ -409,26 +409,26 @@ Avaliable patterns:
 * ```ns``` - nanosec
 
 ## type_traits
-  * ```is_duration< T >``` - checks if type is std::chrono::duration
-  * ```enable_if_duration< T >``` - enable_if for ```is_duration```
-  * ```is_clock< T >``` - checks if type conforms the typedefs for clocks from std::chrono
-  * ```enable_if_clock< T >``` - enable_if for ```is_clock```
-  * ```returns_type< result_type, Func, Args... >``` - checks if function return type is >```result_type>```
-  * ```disable_if< val, type >``` - oposite to ```enable_if```
-  * ```enable_if_returns_type< result_type, Func, Args... >``` - enable_if for returns_void
-  * ```disable_if_returns_type< result_type, Func, Args... >``` - not(enable_if) for returns_void  
+  * ```is_duration< T >``` - checks if type is std::chrono::duration.
+  * ```enable_if_duration< T >``` - enable_if for ```is_duration```.
+  * ```is_clock< T >``` - checks if type conforms the typedefs for clocks from std::chrono.
+  * ```enable_if_clock< T >``` - enable_if for ```is_clock```.
+  * ```returns_type< result_type, Func, Args... >``` - checks if function's return type is ```result_type```.
+  * ```disable_if< val, type >``` - opposite to ```enable_if```.
+  * ```enable_if_returns_type< result_type, Func, Args... >``` - enable_if for returns_type.
+  * ```disable_if_returns_type< result_type, Func, Args... >``` - not(enable_if) for returns_type.
   
 ## classes
   * ```non_copyable``` - base class for non-copyable classes
   * ```non_movable``` - base class for non-movable classes
-  * ```non_copyable_non_movable``` - base class for non copyable and non movable classes
+  * ```non_copyable_non_movable``` - base class for non-copyable and non-movable classes
 
 ## tuple
-  * ```args_size< Args... >``` - returns size of args
-  * ```first_of_type< Target, startindex >( Tuple )``` - returns position of first arg of type ```Target```, starting from ```start_index```
-  * ```for_each_of_type< Target, Func, start_index >( Tuple )``` - applies Func for each member of tuple of type ```Target```, starting from ```start_index```
-  * ```tuple_find< start_index, Target >( target, Tuple )``` - finds position of first member of tuple of type ```Target``` equal to ```target```, starting from ```start_index```
-  * ```type_present< Target >( Tuple )``` - checks if element of type ```Target``` is present in ```Tuple```
+  * ```args_size< Args... >``` - returns size of args.
+  * ```first_of_type< Target, startindex >( Tuple )``` - returns position of first arg of type ```Target```, starting from ```start_index```.
+  * ```for_each_of_type< Target, Func, start_index >( Tuple )``` - applies Func to each member of tuple of type ```Target```, starting from ```start_index```.
+  * ```tuple_find< start_index, Target >( target, Tuple )``` - finds position of thr first member of tuple of type ```Target``` equal to ```target```, starting from ```start_index```.
+  * ```type_present< Target >( Tuple )``` - checks if element of type ```Target``` is present in ```Tuple```.
   
 
 ## test
@@ -436,13 +436,13 @@ Lightweight and simple test framework
 
 ### Asserts and wrappers
 * ```DYNAMIC_ASSERT( val )``` - Evaluates condition, throws ```test_error``` with assert info on fail
-* ```DYNAMIC_ASSERT( val, error )``` - Same as above, but uses )```error)``` as error text.
+* ```DYNAMIC_ASSERT( val, error )``` - Same as above, but uses ```error``` as error text.
 
-* ```CHECK_NOTHROW( Func )``` - a wrapper around tested function, checks it's throw behaviour. Throws ```test_error``` on fail.
-* ```CHECK_THROW( Func )``` - a wrapper around tested function, checks it's throw behaviour. Throws ```test_error``` on fail.
+* ```CHECK_NOTHROW( Func )``` - a wrapper around tested function, checks it's exception behaviour. Throws ```test_error``` on fail.
+* ```CHECK_THROW( Func )``` - a wrapper around tested function, checks it's exception behaviour. Throws ```test_error``` on fail.
 
 * ```TEST_CASE( test_name )``` - Should be used as a wrapper around tests, automatically launches them.
-* ```TEST_CASE_FIXTURE( test_name, fuxture_name )``` - Same as above, but with fixtures support. ```fixture_name``` should be the name of existing struct with default constructor. All public variables and functions of the fixture will be directry available in the scope of the test case.
+* ```TEST_CASE_FIXTURE( test_name, fuxture_name )``` - Same as above, but with fixtures support. ```fixture_name``` should be the name of an existing struct with a default constructor. All public variables and functions of the fixture are directly available in the scope of the test case.
 
 * ```HELPERS_MAIN``` - A define expanding to main() function. Should be defined before the test_helpers.h include and only in one translation unit.
 
