@@ -31,6 +31,8 @@ TEST_CASE( thread_pool_test )
             futures.emplace_back( t.add_task( task, i ) );
         }
 
+        std::this_thread::sleep_for( std::chrono::seconds{ 1 } );
+
         CHECK_NOTHROW( total_tasks = t.total_tasks_number() )
         CHECK_NOTHROW( queued_tasks = t.queue_size() )
 
