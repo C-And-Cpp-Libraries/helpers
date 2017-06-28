@@ -15,7 +15,7 @@ namespace temporal
 
 /// \brief since::julian implies that the specified time is calculated since
 /// julian day 0, and no time is added to time_moment of time_ratio
-/// since::julian means that seconds since julian day 0 will be added to
+/// since::epoch means that seconds since julian day 0 will be added to
 /// the duration under the hood
 enum class since
 {
