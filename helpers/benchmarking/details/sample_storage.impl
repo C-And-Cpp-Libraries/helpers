@@ -1,0 +1,112 @@
+#ifndef _HELPERS_SAMPLE_STORAGE_IMPL_H_
+#define _HELPERS_SAMPLE_STORAGE_IMPL_H_
+
+#define NOMINMAX
+
+#include "../sample_storage.h"
+
+namespace helpers
+{
+
+namespace benchmarking
+{
+
+template< typename k, typename dur, typename cl >
+void sample_storage< k, dur, cl >::time_data::update( const sample_type& s, size_t max_samples )
+{
+    if( sample_type::max() - sum < s )
+    {
+        throw std::overflow_error{ "Adding the timestamp would result in average calc overflow" };
+    }
+
+    samples.emplace_back( s );
+
+    if( max_samples && samples.size() == max_samples )
+    {
+        sum -= samples.front();
+        samples.pop_front();
+    }
+
+    sum += s;
+}
+
+template< typename k, typename dur, typename cl >
+void sample_storage< k, dur, cl >::add_timestamp( _key_in key )
+{
+    auto t = clock_type::now();
+
+    std::lock_guard< std::mutex >{ m_mutex };
+
+    auto waiting_it = m_waiting_samples.find( key );
+    if( waiting_it == m_waiting_samples.end() )
+    {
+        m_waiting_samples.emplace( key, t );
+    }
+    else
+    {
+        const time_point& start = waiting_it->second;
+        if( t < start )
+        {
+            throw std::invalid_argument{ "End time should be >= start time" };
+        }
+
+        sample_type sample{ std::chrono::duration_cast< sample_type >( t - start ) };
+        m_waiting_samples.erase( waiting_it );
+        m_data[ key ].update( sample, m_max_samples );
+    }
+}
+
+template< typename k, typename dur, typename cl >
+bool sample_storage< k, dur, cl >::remove_key_data( _key_in key ) noexcept
+{
+    std::lock_guard< std::mutex >{ m_mutex };
+    return ( m_waiting_samples.erase( key ) || m_data.erase( key ) );
+}
+
+template< typename k, typename dur, typename cl >
+bool sample_storage< k, dur, cl >::key_present( _key_in key ) const noexcept
+{
+    std::lock_guard< std::mutex >{ m_mutex };
+    return ( m_waiting_samples.count( key ) || m_data.count( key ) );
+}
+
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::average_time( _key_in key ) const -> sample_type
+{
+    std::lock_guard< std::mutex >{ m_mutex };
+
+    auto it = m_data.find( key );
+    if( it == m_data.end() )
+    {
+        throw std::out_of_range{ "Key not found" };
+    }
+
+    return it->second.average();
+}
+
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::samples( _key_in key ) const -> const std::deque< sample_type >&
+{
+    std::lock_guard< std::mutex >{ m_mutex };
+
+    auto it = m_data.find( key );
+    if( it == m_data.end() )
+    {
+        throw std::out_of_range{ "Key not found" };
+    }
+
+    return it->second.samples;
+}
+
+template< typename k, typename dur, typename cl >
+auto sample_storage< k, dur, cl >::instance() noexcept -> sample_storage< key_type, sample_type, clock_type >*
+{
+    static sample_storage< key_type, sample_type, clock_type > s;
+    return &s;
+}
+
+}// benchmarking
+
+}// helpers
+
+#endif
