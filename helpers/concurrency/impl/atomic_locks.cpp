@@ -102,7 +102,17 @@ bool rw_spinlock::try_lock_write( uint32_t attempts ) noexcept
 void rw_spinlock::unlock_read() noexcept
 {
     assert( m_lock & 0x7fffffff );
-    --m_lock;
+
+    while( true )
+    {
+        uint_fast32_t old_lock{ m_lock };
+        uint_fast32_t new_lock{ m_lock - 1 };
+
+        if( m_lock.compare_exchange_weak( old_lock, new_lock, std::memory_order_acquire ) )
+        {
+            return;
+        }
+    }
 }
 
 void rw_spinlock::unlock_write() noexcept
@@ -119,7 +129,7 @@ rw_spinlock_guard::rw_spinlock_guard( rw_spinlock& lock, const lock_mode& mode, 
 {
     if( policy == lock_policy::instant )
     {
-        m_lock.lock( mode );
+        this->lock();
     }
 }
 
