@@ -103,7 +103,7 @@ public:
 private:
     rw_spinlock& m_lock;
     lock_mode m_mode;
-    bool m_owns_lock{ false };
+    std::atomic_bool m_owns_lock{ false };
 };
 
 }// concurrency
