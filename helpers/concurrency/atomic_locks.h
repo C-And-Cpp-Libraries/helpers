@@ -4,6 +4,8 @@
 #include <chrono>
 #include <atomic>
 
+#define DEFAULT_LOCK_ATTEMPTS 5
+
 namespace helpers
 {
 
@@ -32,10 +34,10 @@ public:
 
 private:
     void lock_read() noexcept;
-    bool try_lock_read( uint32_t attempts = 5 ) noexcept;
+    bool try_lock_read( uint32_t attempts = DEFAULT_LOCK_ATTEMPTS ) noexcept;
 
     void lock_write() noexcept;
-    bool try_lock_write( uint32_t attempts = 5 ) noexcept;
+    bool try_lock_write( uint32_t attempts = DEFAULT_LOCK_ATTEMPTS ) noexcept;
 
     void unlock_read() noexcept;
     void unlock_write() noexcept;
@@ -60,7 +62,7 @@ public:
     ~rw_spinlock_guard();
 
     void lock() noexcept;
-    bool try_lock( uint32_t attempts = 5 ) noexcept;
+    bool try_lock( uint32_t attempts = DEFAULT_LOCK_ATTEMPTS ) noexcept;
 
     template< typename rep, typename period >
     bool try_lock_for( const std::chrono::duration< rep, period >& timeout ) noexcept
