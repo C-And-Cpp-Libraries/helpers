@@ -29,7 +29,7 @@ class rw_spinlock final
 {
 public:
     void lock( const lock_mode& mode ) noexcept;
-    bool try_lock( const lock_mode& mode, uint32_t attempts = 5 ) noexcept;
+    bool try_lock( const lock_mode& mode, uint32_t attempts = DEFAULT_LOCK_ATTEMPTS ) noexcept;
     void unlock( const lock_mode& mode ) noexcept;
 
 private:
