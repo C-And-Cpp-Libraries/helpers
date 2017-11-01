@@ -3,8 +3,8 @@
 
 #include <tuple>
 
-#include "../test.h"
-#include "../tuple.h"
+#include "test.h"
+#include "tuple.h"
 
 using namespace helpers::tuple;
 

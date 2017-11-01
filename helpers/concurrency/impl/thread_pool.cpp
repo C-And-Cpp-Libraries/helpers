@@ -57,11 +57,6 @@ size_t thread_pool::queue_size() const noexcept
 
 void thread_pool::add_workers( uint32_t number )
 {
-    if( !m_is_running )
-    {
-        throw std::logic_error{ "Object is being destroyed" };
-    }
-
     if( number )
     {
         std::lock_guard< std::mutex >{ m_workers_mutex };
@@ -79,11 +74,6 @@ void thread_pool::add_workers( uint32_t number )
 
 void thread_pool::schedule_remove_workers( uint32_t number )
 {
-    if( !m_is_running )
-    {
-        throw std::logic_error{ "Object is being destroyed" };
-    }
-
     if( number )
     {
         std::lock_guard< std::mutex >{ m_workers_mutex };

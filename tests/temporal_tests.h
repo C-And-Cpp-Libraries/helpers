@@ -3,16 +3,15 @@
 
 #include <iostream>
 #include <functional>
-
-#include "../helpers/test.h"
-
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include <chrono>
 #include <cassert>
 #include <map>
-#include "../helpers/temporal/temporal.h"
+
+#include "test.h"
+#include "temporal.h"
 
 using namespace helpers::temporal;
 using namespace helpers::temporal::details;

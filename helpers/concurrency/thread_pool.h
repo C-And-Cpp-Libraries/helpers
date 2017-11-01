@@ -82,11 +82,6 @@ private:
 template< typename Func, typename... Args >
 auto thread_pool::add_task( Func&& func, Args&&... args  ) -> std::future< typename std::result_of< Func( Args... ) >::type >
 {
-    if( !m_is_running )
-    {
-        throw std::logic_error{ "Object is being destroyed" };
-    }
-
     using Task = std::packaged_task< typename std::result_of<Func( Args... ) >::type() >;
     auto task = std::make_shared< Task >( std::bind( std::forward< Func >( func ), std::forward< Args >( args )... ) );
     auto result = task->get_future();

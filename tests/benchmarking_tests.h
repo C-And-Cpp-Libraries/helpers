@@ -3,16 +3,19 @@
 
 #include <thread>
 
-#include "../helpers/test.h"
-#include "../helpers/benchmarking.h"
+#include "test.h"
+#include "benchmarking.h"
 
 using namespace helpers::benchmarking;
 
 namespace benchmarking_tests
 {
 
+    class A{};
 TEST_CASE( measure_exec_time_test )
 {
+    auto asd = [](){ return A{}; };
+    auto xx = []( auto i ){ ++i };
     auto test_func_void = [](){ std::this_thread::sleep_for( std::chrono::milliseconds{ 100 } ); };
     auto test_func_int = []( int i ){ std::this_thread::sleep_for( std::chrono::milliseconds{ 100 } ); return i + 1; };
     using dur_type = std::chrono::milliseconds;

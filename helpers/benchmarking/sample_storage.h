@@ -6,13 +6,27 @@
 #include <deque>
 #include <numeric>
 
-#include "details/sample_storage_details.h"
+#include "impl/sample_storage_details.h"
 
 namespace helpers
 {
 
 namespace benchmarking
 {
+
+template< typename item_type, size_t size >
+class curcular_buffer
+{
+    using _in_item_type = details::val_or_ref< item_type >;
+
+public:
+    item_type insert( _in_item_type item );
+    const std::array< item_type, size >& get();
+
+private:
+    size_t m_pos{ 0 };
+    std::array< item_type, size > m_buffer;
+};
 
 /// \brief A thread safe time duration samples storage class,
 /// capable of storing time data sorted by keys.
@@ -71,4 +85,4 @@ private:
 
 #endif
 
-#include "details/sample_storage.impl"
+#include "impl/sample_storage.impl"

@@ -30,9 +30,9 @@ void rw_spinlock::lock( const lock_mode& mode ) noexcept
     return mode == lock_mode::read? lock_read() : lock_write();
 }
 
-bool rw_spinlock::try_lock( const lock_mode& mode, uint32_t attempts ) noexcept
+bool rw_spinlock::try_lock( const lock_mode& mode) noexcept
 {
-    return mode == lock_mode::read? try_lock_read( attempts ) : try_lock_write( attempts );
+    return mode == lock_mode::read? try_lock_read() : try_lock_write();
 }
 
 void rw_spinlock::unlock( const lock_mode& mode ) noexcept
@@ -54,20 +54,12 @@ void rw_spinlock::lock_read() noexcept
     }
 }
 
-bool rw_spinlock::try_lock_read( uint32_t attempts ) noexcept
+bool rw_spinlock::try_lock_read() noexcept
 {
-    for( uint32_t attempt{ 0 }; attempt < attempts; ++attempt )
-    {
-        uint_fast32_t old_lock{ m_lock & 0x7fffffff };
-        uint_fast32_t new_lock{ old_lock + 1 };
+    uint_fast32_t old_lock{ m_lock & 0x7fffffff };
+    uint_fast32_t new_lock{ old_lock + 1 };
 
-        if( m_lock.compare_exchange_strong( old_lock, new_lock, std::memory_order_acquire ) )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return m_lock.compare_exchange_strong( old_lock, new_lock, std::memory_order_acquire );        
 }
 
 void rw_spinlock::lock_write() noexcept
@@ -85,18 +77,10 @@ void rw_spinlock::lock_write() noexcept
     }
 }
 
-bool rw_spinlock::try_lock_write( uint32_t attempts ) noexcept
+bool rw_spinlock::try_lock_write() noexcept
 {
-    for( uint32_t attempt{ 0 }; attempt < attempts; ++attempt )
-    {
-        uint_fast32_t expected{ 0 };
-        if( m_lock.compare_exchange_strong( expected, 0x80000000, std::memory_order_acquire ) )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    uint_fast32_t expected{ 0 };
+    return m_lock.compare_exchange_strong( expected, 0x80000000, std::memory_order_acquire );
 }
 
 void rw_spinlock::unlock_read() noexcept
@@ -147,9 +131,9 @@ void rw_spinlock_guard::lock() noexcept
     m_owns_lock = true;
 }
 
-bool rw_spinlock_guard::try_lock( uint32_t attempts ) noexcept
+bool rw_spinlock_guard::try_lock() noexcept
 {
-    m_owns_lock = m_lock.try_lock( m_mode, attempts );
+    m_owns_lock = m_lock.try_lock( m_mode );
     return m_owns_lock;
 }
 
