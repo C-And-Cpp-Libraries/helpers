@@ -87,7 +87,7 @@ auto thread_pool::add_task( Func&& func, Args&&... args  ) -> std::future< typen
     auto result = task->get_future();
 
     {
-        std::lock_guard< std::mutex >{ m_tasks_mutex };
+        std::lock_guard< std::mutex > tl{ m_tasks_mutex };
 
         // Remove possibly stopped threads from pool
         clean_removed_workers();
@@ -97,7 +97,7 @@ auto thread_pool::add_task( Func&& func, Args&&... args  ) -> std::future< typen
                                           if( task->valid() )
                                             ( *task )();
 
-                                           std::lock_guard< std::mutex >{ m_tasks_mutex };
+                                           std::lock_guard< std::mutex > tl{ m_tasks_mutex };
                                           --m_tasks_number;
                                       } );
 

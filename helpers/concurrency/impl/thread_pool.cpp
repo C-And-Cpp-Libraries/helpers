@@ -34,7 +34,7 @@ thread_pool::~thread_pool()
 
 void thread_pool::clean_pending_tasks()
 {
-    std::lock_guard< std::mutex >{ m_tasks_mutex };
+    std::lock_guard< std::mutex > l{ m_tasks_mutex };
 
     if( !m_pending_tasks.empty() )
     {
@@ -45,7 +45,7 @@ void thread_pool::clean_pending_tasks()
 
 size_t thread_pool::total_tasks_number() const noexcept
 {
-    std::lock_guard< std::mutex >{ m_tasks_mutex };
+    std::lock_guard< std::mutex > l{ m_tasks_mutex };
     return m_tasks_number;
 }
 
@@ -59,7 +59,7 @@ void thread_pool::add_workers( uint32_t number )
 {
     if( number )
     {
-        std::lock_guard< std::mutex >{ m_workers_mutex };
+        std::lock_guard< std::mutex > l{ m_workers_mutex };
 
         clean_removed_workers();
 
@@ -76,7 +76,7 @@ void thread_pool::schedule_remove_workers( uint32_t number )
 {
     if( number )
     {
-        std::lock_guard< std::mutex >{ m_workers_mutex };
+        std::lock_guard< std::mutex > l{ m_workers_mutex };
 
         clean_removed_workers();
 
@@ -98,13 +98,13 @@ void thread_pool::schedule_remove_workers( uint32_t number )
 
 size_t thread_pool::workers_number() const noexcept
 {
-    std::lock_guard< std::mutex >{ m_workers_mutex };
+    std::lock_guard< std::mutex > l{ m_workers_mutex };
     return m_workers_number;
 }
 
 size_t thread_pool::workers_to_remove() const noexcept
 {
-    std::lock_guard< std::mutex >{ m_workers_mutex };
+    std::lock_guard< std::mutex > l{ m_workers_mutex };
     return m_workers_to_remove;
 }
 
@@ -127,14 +127,14 @@ void thread_pool::add_worker()
                 {
                     std::unique_lock< std::mutex > l{ m_tasks_mutex };
 
-                    // Check before potentially waiting for a task
+                    // Check before potentialy waiting for a task
                     if( !m_is_running )
                     {
                         break;
                     }
 
                     {
-                        std::lock_guard< std::mutex >{ m_workers_mutex };
+                        std::lock_guard< std::mutex > l{ m_workers_mutex };
                         if( m_workers_to_remove )
                         {
                             --m_workers_to_remove;
@@ -146,7 +146,7 @@ void thread_pool::add_worker()
                     if( m_pending_tasks.empty() )
                     {
                         m_worker_cv.wait( l, [ this ](){
-                            std::lock_guard< std::mutex >{ m_workers_mutex };
+                            std::lock_guard< std::mutex > wl{ m_workers_mutex };
                             return !m_pending_tasks.empty() || m_workers_to_remove || !m_is_running; } );
 
                         // Check after waiting
@@ -156,7 +156,7 @@ void thread_pool::add_worker()
                         }
 
                         {
-                            std::lock_guard< std::mutex >{ m_workers_mutex };
+                            std::lock_guard< std::mutex > l{ m_workers_mutex };
                             if( m_workers_to_remove )
                             {
                                 --m_workers_to_remove;
@@ -177,7 +177,7 @@ void thread_pool::add_worker()
                 catch( const std::bad_function_call& ){}
 
                 // If there are no tasks left, notify threads waiting for the end of execution
-                std::lock_guard< std::mutex >{ m_tasks_mutex };
+                std::lock_guard< std::mutex > l{ m_tasks_mutex };
                 if( !m_tasks_number )
                 {
                     m_tasks_status_cv.notify_all();

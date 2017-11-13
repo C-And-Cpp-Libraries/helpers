@@ -35,7 +35,7 @@ void sample_storage< k, dur, cl >::add_timestamp( _key_in key )
 {
     auto t = clock_type::now();
 
-    std::lock_guard< std::mutex >{ m_mutex };
+    std::lock_guard< std::mutex > l{ m_mutex };
 
     auto waiting_it = m_waiting_samples.find( key );
     if( waiting_it == m_waiting_samples.end() )
@@ -59,21 +59,21 @@ void sample_storage< k, dur, cl >::add_timestamp( _key_in key )
 template< typename k, typename dur, typename cl >
 bool sample_storage< k, dur, cl >::remove_key_data( _key_in key ) noexcept
 {
-    std::lock_guard< std::mutex >{ m_mutex };
+    std::lock_guard< std::mutex > l{ m_mutex };
     return ( m_waiting_samples.erase( key ) || m_data.erase( key ) );
 }
 
 template< typename k, typename dur, typename cl >
 bool sample_storage< k, dur, cl >::key_present( _key_in key ) const noexcept
 {
-    std::lock_guard< std::mutex >{ m_mutex };
+    std::lock_guard< std::mutex > l{ m_mutex };
     return ( m_waiting_samples.count( key ) || m_data.count( key ) );
 }
 
 template< typename k, typename dur, typename cl >
 auto sample_storage< k, dur, cl >::average_time( _key_in key ) const -> sample_type
 {
-    std::lock_guard< std::mutex >{ m_mutex };
+    std::lock_guard< std::mutex > l{ m_mutex };
 
     auto it = m_data.find( key );
     if( it == m_data.end() )
@@ -87,7 +87,7 @@ auto sample_storage< k, dur, cl >::average_time( _key_in key ) const -> sample_t
 template< typename k, typename dur, typename cl >
 auto sample_storage< k, dur, cl >::samples( _key_in key ) const -> const std::deque< sample_type >&
 {
-    std::lock_guard< std::mutex >{ m_mutex };
+    std::lock_guard< std::mutex > l{ m_mutex };
 
     auto it = m_data.find( key );
     if( it == m_data.end() )

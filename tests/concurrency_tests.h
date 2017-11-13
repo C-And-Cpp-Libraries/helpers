@@ -29,10 +29,9 @@ void check_task_results( std::vector<std::future<int>>& futures, const std::arra
     DYNAMIC_ASSERT( results == ref );
 }
 
-/*
 TEST_CASE( thread_pool_test )
 {
-    auto task = [](int i)->int{ std::this_thread::sleep_for( std::chrono::seconds{ 2 } ); return i; };
+    auto task = [](int i)->int{ std::this_thread::sleep_for( std::chrono::milliseconds{ 100 } ); return i; };
 
     std::vector< std::future< int > > futures;
     uint64_t workers_number{ 0 };
@@ -51,24 +50,30 @@ TEST_CASE( thread_pool_test )
         futures.emplace_back( t.add_task( task, i ) );
     }
 
-    std::this_thread::sleep_for( std::chrono::seconds{ 1 } );
+    std::this_thread::sleep_for( std::chrono::milliseconds{ 50 } );
 
     CHECK_NOTHROW( total_tasks = t.total_tasks_number() )
-    CHECK_NOTHROW( queued_tasks = t.queue_size() )
-
     DYNAMIC_ASSERT( total_tasks == values.size() )
-    DYNAMIC_ASSERT( queued_tasks == values.size() - 2 )
+    CHECK_NOTHROW( queued_tasks = t.queue_size() )
+    DYNAMIC_ASSERT( queued_tasks == values.size() - workers_number )
+
+    std::this_thread::sleep_for( std::chrono::seconds{ 2 } );
+
+    DYNAMIC_ASSERT( !t.total_tasks_number() )
+    DYNAMIC_ASSERT( !t.queue_size() )
 
     CHECK_NOTHROW( t.wait_until_finished() )
 
-    check_task_results(futures, values);
+    check_task_results( futures, values );
 
-    CHECK_NOTHROW( t.add_workers( 1 ) )
+    uint64_t prev_worker_num{ workers_number };
+    uint64_t workers_number_add{ 1 };
+    CHECK_NOTHROW( t.add_workers( workers_number_add ) )
     CHECK_NOTHROW( workers_number = t.workers_number() )
-    DYNAMIC_ASSERT( workers_number == 3 )
+    DYNAMIC_ASSERT( workers_number == prev_worker_num + workers_number_add )
     CHECK_THROW( t.schedule_remove_workers( 1000 ) )
     CHECK_NOTHROW( t.schedule_remove_workers( 1 ) )
-    CHECK_NOTHROW( t.clean_pending_tasks() )        
+    CHECK_NOTHROW( t.clean_pending_tasks() )
 
     for( auto i : values )
     {
@@ -77,7 +82,7 @@ TEST_CASE( thread_pool_test )
 
     CHECK_NOTHROW( workers_number = t.workers_number() )
     DYNAMIC_ASSERT( workers_number == 2 );
-}*/
+}
 
 TEST_CASE( atomic_locks_test )
 {
@@ -93,13 +98,22 @@ TEST_CASE( atomic_locks_test )
             s.unlock();
         }, std::ref( s ) };
 
-        auto start = system_clock::now();
-        DYNAMIC_ASSERT(!s.try_lock())
-        s.lock();
-        auto end = system_clock::now();
-        t.join();
-        s.unlock();
-        DYNAMIC_ASSERT( duration_cast< milliseconds >( end - start ).count() >= 99 );
+        try
+        {
+            auto start = system_clock::now();
+            std::this_thread::sleep_for( std::chrono::milliseconds{ 50 } );
+            DYNAMIC_ASSERT(!s.try_lock())
+            s.lock();
+            auto end = system_clock::now();
+            t.join();
+            s.unlock();
+            DYNAMIC_ASSERT( duration_cast< milliseconds >( end - start ).count() >= 99 );
+        }
+        catch(...)
+        {
+            t.join();
+            throw;
+        }
     }
 
     //rw_spinlock
@@ -114,7 +128,10 @@ TEST_CASE( atomic_locks_test )
                 rws.unlock( lock_mode::read );
             }, std::ref( rws ) };
 
+            try
+            {
             auto start = system_clock::now();
+            std::this_thread::sleep_for( std::chrono::milliseconds{ 50 } );
             rws.lock( lock_mode::read );
             DYNAMIC_ASSERT( rws.try_lock( lock_mode::read ) );
             rws.unlock( lock_mode::read );
@@ -125,6 +142,12 @@ TEST_CASE( atomic_locks_test )
             rws.unlock( lock_mode::write );
             auto end = system_clock::now();
             DYNAMIC_ASSERT( duration_cast< milliseconds >( end - start ).count() >= 99 );
+            }
+            catch(...)
+            {
+                t.join();
+                throw;
+            }
         }
 
         //write
@@ -142,17 +165,26 @@ TEST_CASE( atomic_locks_test )
                     rws.unlock( lock_mode::write );
                 }, std::ref( rws ) };
 
-                auto start = system_clock::now();
-                DYNAMIC_ASSERT( !rws.try_lock( lock_mode::read ) );
-                DYNAMIC_ASSERT( !rws.try_lock( lock_mode::write ) );
-                rws.lock( mode );
-                t.join();
-                rws.unlock( mode );
-                auto end = system_clock::now();
-                DYNAMIC_ASSERT( duration_cast< milliseconds >( end - start ).count() >= 99 );
+                try
+                {
+                    auto start = system_clock::now();
+                    std::this_thread::sleep_for( std::chrono::milliseconds{ 50 } );
+                    DYNAMIC_ASSERT( !rws.try_lock( lock_mode::read ) );
+                    DYNAMIC_ASSERT( !rws.try_lock( lock_mode::write ) );
+                    rws.lock( mode );
+                    t.join();
+                    rws.unlock( mode );
+                    auto end = system_clock::now();
+                    DYNAMIC_ASSERT( duration_cast< milliseconds >( end - start ).count() >= 99 );
+                }
+                catch(...)
+                {
+                    t.join();
+                    throw;
+                }
             }
         }
-    }  
+    }
 }
 
 }// concurrency_tests
