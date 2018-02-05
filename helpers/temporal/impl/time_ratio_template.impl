@@ -191,9 +191,12 @@ void time_ratio< tick_cnt, period >::from_std_duration( const std_duration_type&
 }
 
 template< time_type tick_cnt, time_type period >
+template< typename clock_type >
 auto time_ratio< tick_cnt, period >::now() noexcept -> time_ratio< tick_cnt, period >
 {
-    return time_ratio< tick_cnt, period >{ dur_to_time_moment( std::chrono::system_clock::now().time_since_epoch(), since::epoch ) };
+    static_assert( type_traits::is_clock< clock_type >::value, "Invalid clock type" );
+
+    return time_ratio< tick_cnt, period >{ dur_to_time_moment( clock_type::now().time_since_epoch(), since::epoch ) };
 }
 
 // conversion to time_t

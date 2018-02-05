@@ -89,6 +89,7 @@ public:
     void from_std_duration( const std_duration_type& duration, const since& start_point ) noexcept;
 
     // returns curr_time_ratio class initialized with the current time since julian day 0
+    template< typename clock_type = std::chrono::system_clock >
     static time_ratio< tick_cnt, sec_period > now() noexcept;
 
     // conversions to
