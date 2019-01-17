@@ -57,7 +57,10 @@ public:
     constexpr explicit time_ratio( const time_moment& tm ) noexcept;
     constexpr explicit time_ratio( const date_time& dt ) noexcept;
 
+#ifndef _WIN32 // timeval is not supported for windows as it requires WinSock.h to be included
     constexpr explicit time_ratio( const timeval& tv ) noexcept;
+#endif
+
     constexpr explicit time_ratio( const timespec& ts ) noexcept;
 
     template< typename std_duration_type >
@@ -82,7 +85,9 @@ public:
 
     // conversions from
     void from_time_t( time_t time ) noexcept;
+#ifndef _WIN32
     void from_timeval( const timeval& time ) noexcept;
+#endif
     void from_timespec( const timespec& time ) noexcept;
 
     template< typename std_duration_type >
@@ -94,7 +99,9 @@ public:
 
     // conversions to
     constexpr time_t to_time_t() const noexcept;
+#ifndef _WIN32
     constexpr timeval to_timeval() const noexcept;
+#endif
     constexpr timespec to_timespec() const noexcept;
 
     template< typename std_duration_type = curr_std_duration_type >

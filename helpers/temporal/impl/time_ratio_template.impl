@@ -71,11 +71,13 @@ constexpr time_ratio< tick_cnt, period >::time_ratio( const date_time& dt ) noex
     m_time( dt.get_time_moment() ),
     m_count( ratio_count< tick_cnt, period >( m_time ) ){}
 
+#ifndef _WIN32
 // ctor from timeval
 template< time_type tick_cnt, time_type period >
 constexpr time_ratio< tick_cnt, period >::time_ratio( const timeval& tv ) noexcept :
     m_time( tv.tv_sec + julian_sec_before_epoch, microsec_to_nsec( tv.tv_usec ) ),
     m_count( ratio_count< tick_cnt, period >( m_time ) ){}
+#endif
 
 // ctor from timespec
 template< time_type tick_cnt, time_type period >
@@ -162,6 +164,8 @@ void time_ratio< tick_cnt, period >::from_time_t( time_t time ) noexcept
 }
 
 // conversion from timeval
+
+#ifndef _WIN32
 template< time_type tick_cnt, time_type period >
 void time_ratio< tick_cnt, period >::from_timeval( const timeval& time ) noexcept
 {
@@ -169,6 +173,7 @@ void time_ratio< tick_cnt, period >::from_timeval( const timeval& time ) noexcep
     m_time.set_nsec( details::microsec_to_nsec( time.tv_usec ) );
     m_count = ratio_count< tick_cnt, period >( m_time );
 }
+#endif
 
 // conversion from timespec
 template< time_type tick_cnt, time_type period >
@@ -207,12 +212,15 @@ constexpr time_t time_ratio< tick_cnt, period >::to_time_t() const noexcept
 }
 
 // conversion to timeval
+
+#ifndef _WIN32
 template< time_type tick_cnt, time_type period >
 constexpr timeval time_ratio< tick_cnt, period >::to_timeval() const noexcept
 {
     return { static_cast< long >( m_time.sec_epoch() ),
              static_cast< long >( details::nsec_to_microsec( m_time.nsec() ) ) };
 }
+#endif
 
 // conversion to timespec
 template< time_type tick_cnt, time_type period >

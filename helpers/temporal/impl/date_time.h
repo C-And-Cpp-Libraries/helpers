@@ -4,10 +4,6 @@
 #include <string>
 #include "time_details.h"
 
-#ifdef _WIN32
-    #include <Winsock2.h>
-#endif
-
 namespace helpers
 {
 

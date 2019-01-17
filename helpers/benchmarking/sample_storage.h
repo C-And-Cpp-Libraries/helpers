@@ -14,20 +14,6 @@ namespace helpers
 namespace benchmarking
 {
 
-template< typename item_type, size_t size >
-class curcular_buffer
-{
-    using _in_item_type = details::val_or_ref< item_type >;
-
-public:
-    item_type insert( _in_item_type item );
-    const std::array< item_type, size >& get();
-
-private:
-    size_t m_pos{ 0 };
-    std::array< item_type, size > m_buffer;
-};
-
 /// \brief A thread safe time duration samples storage class,
 /// capable of storing time data sorted by keys.
 /// Can calculate average time for the specified key.
@@ -70,7 +56,7 @@ public:
     bool key_present( _key_in key ) const noexcept;
     const std::deque< sample_type >& samples( _key_in key ) const;
 
-    static sample_storage< key_type, sample_type, clock_type >* instance() noexcept;
+    static sample_storage< key_type, sample_type, clock_type >& instance() noexcept;
 
 private:
     mutable std::mutex m_mutex;

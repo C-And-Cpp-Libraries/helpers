@@ -122,13 +122,15 @@ TEST_CASE( time_ratio_test )
         millisec_t ms;
         ms.from_time_t(tt);
         DYNAMIC_ASSERT(tt == ms.to_time_t());
-
+		
+#ifndef _WIN32
         timeval tv{ 172800, 999 };
         hours_t h{ tv };
         hours_t h1;
         h1.from_timeval( tv );
         DYNAMIC_ASSERT(h.to_timeval().tv_sec == tv.tv_sec && h.to_timeval().tv_usec == tv.tv_usec);
         DYNAMIC_ASSERT(h1.to_timeval().tv_sec == tv.tv_sec && h1.to_timeval().tv_usec == tv.tv_usec);
+#endif
 
         timespec ts{ 172800, 999 };
         minutes_t m{ ts };

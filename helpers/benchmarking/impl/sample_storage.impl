@@ -99,10 +99,10 @@ auto sample_storage< k, dur, cl >::samples( _key_in key ) const -> const std::de
 }
 
 template< typename k, typename dur, typename cl >
-auto sample_storage< k, dur, cl >::instance() noexcept -> sample_storage< key_type, sample_type, clock_type >*
+auto sample_storage< k, dur, cl >::instance() noexcept -> sample_storage< key_type, sample_type, clock_type >&
 {
     static sample_storage< key_type, sample_type, clock_type > s;
-    return &s;
+    return s;
 }
 
 }// benchmarking

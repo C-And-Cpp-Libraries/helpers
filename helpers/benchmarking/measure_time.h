@@ -49,7 +49,7 @@ auto measure_exec_time( Func&& f, Args&&... args ) -> std::pair< duration_result
 /// callback must not throw any exceptions, as it's called in destructor
 
 template< typename _duration_type, typename _clock_type >
-class scope_time_handle : public classes::non_copyable_non_movable
+class scoped_time_handle : public classes::non_copyable_non_movable
 {
     static_assert( type_traits::is_duration< _duration_type >::value, "Invalid duration type" );
     static_assert( type_traits::is_clock< _clock_type >::value, "Invalid clock type" );
@@ -59,7 +59,7 @@ public:
     using clock_type = _clock_type;
     using pred_type = std::function< void( const duration_type& ) >;
 
-    explicit scope_time_handle( const pred_type& execute_on_destroy ) :
+    explicit scoped_time_handle( const pred_type& execute_on_destroy ) :
         m_pred( execute_on_destroy ),
         m_start( clock_type::now() )
     {
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    ~scope_time_handle()
+    ~scoped_time_handle()
     {
         m_pred( std::chrono::duration_cast< duration_type >( clock_type::now() - m_start ) );
     }
@@ -81,12 +81,12 @@ private:
 
 /// \brief Convenience typedefs
 
-using nanosec_scope_time_handle  = scope_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
-using microsec_scope_time_handle = scope_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
-using millisec_scope_time_handle = scope_time_handle< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
-using sec_scope_time_handle      = scope_time_handle< std::chrono::seconds,      std::chrono::high_resolution_clock >;
-using min_scope_time_handle      = scope_time_handle< std::chrono::minutes,      std::chrono::high_resolution_clock >;
-using hour_scope_time_handle     = scope_time_handle< std::chrono::hours,        std::chrono::high_resolution_clock >;
+using nanosec_scoped_time_handle  = scoped_time_handle< std::chrono::nanoseconds,  std::chrono::high_resolution_clock >;
+using microsec_scoped_time_handle = scoped_time_handle< std::chrono::microseconds, std::chrono::high_resolution_clock >;
+using millisec_scoped_time_handle = scoped_time_handle< std::chrono::milliseconds, std::chrono::high_resolution_clock >;
+using sec_scoped_time_handle      = scoped_time_handle< std::chrono::seconds,      std::chrono::high_resolution_clock >;
+using min_scoped_time_handle      = scoped_time_handle< std::chrono::minutes,      std::chrono::high_resolution_clock >;
+using hour_scoped_time_handle     = scoped_time_handle< std::chrono::hours,        std::chrono::high_resolution_clock >;
 
 }// benchmarking
 
