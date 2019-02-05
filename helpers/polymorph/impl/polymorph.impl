@@ -68,17 +68,19 @@ private:
 };
 
 template< typename T >
-std::shared_ptr< details::type_storage< T > > try_cast( const std::shared_ptr< details::base_type_storage >& data )
+details::type_storage< T >* try_cast(const std::shared_ptr< details::base_type_storage >& data)
 {
-    auto data_casted = std::dynamic_pointer_cast< type_storage< T > >
-            ( std::const_pointer_cast< details::base_type_storage >( data ) );
+	assert(data != nullptr);
 
-    if( !data_casted )
-    {
-        throw std::bad_cast{};
-    }
+	auto non_const_ptr = const_cast< details::base_type_storage* >( data.get() );
+	auto data_casted = dynamic_cast< type_storage< T >* >( non_const_ptr );
 
-    return data_casted;
+	if (!data_casted)
+	{
+		throw std::bad_cast{};
+	}
+
+	return data_casted;
 }
 
 template< typename T >
