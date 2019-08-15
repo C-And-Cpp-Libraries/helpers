@@ -56,22 +56,8 @@ private:
     }
 };
 
-namespace details
-{
-
-template<typename T>
-struct MemberType
-{
-    using type = typename std::conditional<std::is_trivially_copyable<T>::value, T, const T&>::type;
-};
-
-template<typename T>
-using MemberType_t = typename MemberType<T>::type;
-
-}
-
 template<typename... Args>
-using Members = std::tuple <details::MemberType_t<Args>...>;
+using Members = std::tuple <const Args&...>;
 
 /* 
 All classes that inherit ComparableWith should implement Members<class member types...> Members() function
