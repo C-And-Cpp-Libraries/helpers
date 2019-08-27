@@ -56,7 +56,9 @@ struct parser<Ret(T::*)(Args...) const volatile> :
     meta<const_::yes, volatile_::yes, T, Ret, Args...> {};
 
 template<typename CallableObject>
-struct parser :parser<decltype(&CallableObject::operator())> {};
+struct parser : parser<decltype(&CallableObject::operator())> {};
+    
+// TODO: Support noexcept specifier
 
 template<typename T, typename StrippedType = decay_no_ptr_t<T>>
 struct traits : parser<StrippedType>
@@ -99,7 +101,7 @@ constexpr bool is_member_func = !std::is_same_v<mem_func_owner_type<Func>, detai
 
 }// func_traits
 
-#define DEFINE_func_traits_FOR_CALLOPT_WIN_X32(CALL_OPT)                               \
+#define DEFINE_FUNC_TRAITS_FOR_CALLOPT_WIN_X32(CALL_OPT)                               \
     template<typename Ret, typename... Args>                                           \
     struct func_traits::detail::parser<Ret(CALL_OPT *)(Args...)> :                     \
                     func_traits::detail::parser<Ret(Args...)> {};                      \
