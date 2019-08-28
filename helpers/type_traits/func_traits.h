@@ -1,22 +1,26 @@
-#pragma once
-
 #include <type_traits>
 #include <tuple>
 
 namespace func_traits {
 namespace detail {
 
+template<typename T>
+using decay_no_ptr_t = std::remove_pointer_t<std::decay_t<T>>;
+
 template<typename...>
 using void_t = void;
 
-template<typename T, typename = void_t<>> 
-struct is_callable_object : std::false_type {};
+template<typename T, typename = void_t<>>
+struct extract_fun
+{
+    using type = decay_no_ptr_t<T>;
+};
 
 template<typename T>
-struct is_callable_object<T, void_t<decltype(&T::operator())>> : std::true_type {};
-
-template<typename T>
-using decay_no_ptr_t = std::remove_pointer_t<std::decay_t<T>>;
+struct extract_fun<T, void_t<decltype(&decay_no_ptr_t<T>::operator())>>
+{
+    using type = decltype(&decay_no_ptr_t<T>::operator());
+};
 
 enum class const_{ yes, no };
 enum class volatile_{ yes, no };
@@ -33,7 +37,15 @@ struct meta
 };
 
 template<typename T>
-struct parser;
+struct parser
+{
+    template<typename U> 
+    struct dependent_false : std::false_type{};
+
+    static_assert(
+        dependent_false<T>::value,
+        "Type is not a function or callable, or no suitable overload for calltype is provided");
+};
 
 template<typename Ret, typename... Args>
 struct parser<Ret(Args...)> :
@@ -55,28 +67,16 @@ template<typename T, typename Ret, typename... Args>
 struct parser<Ret(T::*)(Args...) const volatile> :
     meta<const_::yes, volatile_::yes, T, Ret, Args...> {};
 
-template<typename CallableObject>
-struct parser : parser<decltype(&CallableObject::operator())> {};
-    
-// TODO: Support noexcept specifier
-
-template<typename T, typename StrippedType = decay_no_ptr_t<T>>
-struct traits : parser<StrippedType>
-{
-    static_assert(
-        std::is_function_v<StrippedType> ||
-        std::is_member_function_pointer_v<StrippedType> ||
-        is_callable_object<StrippedType>::value,
-        "Type is not a function or callable, or no suitable overload for calltype is provided");
-};
+template<typename Func>
+using make_parser = parser<typename extract_fun<Func>::type>;
 
 }// detail
 
 template<typename Func>
-using result_type = typename detail::traits<Func>::result_type;
+using result_type = typename detail::make_parser<Func>::result_type;
 
 template<typename Func>
-using args_types = typename detail::traits<Func>::args_types;
+using args_types = typename detail::make_parser<Func>::args_types;
 
 template<size_t Pos, typename Func>
 using arg_type_at = std::tuple_element_t<Pos, args_types<Func>>;
@@ -88,13 +88,13 @@ template<typename Func>
 constexpr size_t args_num = std::tuple_size<args_types<Func>>::value;
 
 template<typename Func>
-using mem_func_owner_type = typename detail::traits<Func>::owner_type;
+using mem_func_owner_type = typename detail::make_parser<Func>::owner_type;
 
 template<typename Func>
-constexpr bool is_const = detail::traits<Func>::is_const;
+constexpr bool is_const = detail::make_parser<Func>::is_const;
 
 template<typename Func>
-constexpr bool is_volatile = detail::traits<Func>::is_volatile;
+constexpr bool is_volatile = detail::make_parser<Func>::is_volatile;
 
 template<typename Func>
 constexpr bool is_member_func = !std::is_same_v<mem_func_owner_type<Func>, detail::non_member_func>;
@@ -117,3 +117,5 @@ constexpr bool is_member_func = !std::is_same_v<mem_func_owner_type<Func>, detai
     template<typename T, typename Ret, typename... Args>                               \
     struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) const volatile> :   \
                     func_traits::detail::parser<Ret(T::*)(Args...) const volatile>{};  \
+
+DEFINE_FUNC_TRAITS_FOR_CALLOPT_WIN_X32(CALL_CONV)
