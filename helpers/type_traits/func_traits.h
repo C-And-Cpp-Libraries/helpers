@@ -11,26 +11,30 @@ template<typename...>
 using void_t = void;
 
 template<typename T, typename = void_t<>>
-struct extract_fun
+struct extract_func_type
 {
-    using type = decay_no_ptr_t<T>;
+    using type = T;
 };
 
-template<typename T>
-struct extract_fun<T, void_t<decltype(&decay_no_ptr_t<T>::operator())>>
+template<typename T> 
+struct extract_func_type<T, void_t<decltype(&T::operator())>>
 {
-    using type = decltype(&decay_no_ptr_t<T>::operator());
+    using type = decltype(&T::operator());
 };
 
-enum class const_{ yes, no };
-enum class volatile_{ yes, no };
+enum func_qualifiers{ no_qual_ = 0, const_ = 1, volatile_ = 2 }; // TODO: noexcept
+
+constexpr func_qualifiers operator|(func_qualifiers l, func_qualifiers r) noexcept
+{
+    return static_cast<func_qualifiers>(int{ l } | int{ r });
+}
+
 using non_member_func = void_t<>;
 
-template<const_ IsConst, volatile_ IsVolatile, typename Owner, typename Ret, typename... Args>
+template<func_qualifiers Qualifiers, typename Owner, typename Ret, typename... Args>
 struct meta
 {
-    static constexpr bool is_const{ IsConst == const_::yes };
-    static constexpr bool is_volatile{ IsVolatile == volatile_::yes };
+    static constexpr func_qualifiers qualifiers{ Qualifiers };
     using owner_type = Owner;
     using result_type = Ret;
     using args_types = std::tuple<Args...>;
@@ -39,44 +43,41 @@ struct meta
 template<typename T>
 struct parser
 {
-    template<typename U> 
-    struct dependent_false : std::false_type{};
+    template<typename U>
+    struct dependent_false : std::false_type {};
 
-    static_assert(
-        dependent_false<T>::value,
+    static_assert(dependent_false<T>::value,
         "Type is not a function or callable, or no suitable overload for calltype is provided");
 };
 
 template<typename Ret, typename... Args>
-struct parser<Ret(Args...)> :
-    meta<const_::no, volatile_::no, non_member_func, Ret, Args...> {};
+struct parser<Ret(Args...)> : meta<no_qual_, non_member_func, Ret, Args...> {};
 
 template<typename T, typename Ret, typename... Args>
-struct parser<Ret(T::*)(Args...)> :
-    meta<const_::no, volatile_::no, T, Ret, Args...> {};
+struct parser<Ret(T::*)(Args...)> : meta<no_qual_, T, Ret, Args...> {};
 
 template<typename T, typename Ret, typename... Args>
-struct parser<Ret(T::*)(Args...) const> :
-    meta<const_::yes, volatile_::no, T, Ret, Args...> {};
+struct parser<Ret(T::*)(Args...) const> : meta<const_, T, Ret, Args...> {};
 
 template<typename T, typename Ret, typename... Args>
-struct parser<Ret(T::*)(Args...) volatile> :
-    meta<const_::no, volatile_::yes, T, Ret, Args...> {};
+struct parser<Ret(T::*)(Args...) volatile> : meta<volatile_, T, Ret, Args...> {};
 
 template<typename T, typename Ret, typename... Args>
-struct parser<Ret(T::*)(Args...) const volatile> :
-    meta<const_::yes, volatile_::yes, T, Ret, Args...> {};
+struct parser<Ret(T::*)(Args...) const volatile> : meta<const_ | volatile_, T, Ret, Args...> {};
 
 template<typename Func>
-using make_parser = parser<typename extract_fun<Func>::type>;
+using parse = parser<typename extract_func_type<decay_no_ptr_t<Func>>::type>;
+
+template<typename Func, func_qualifiers Qualifier>
+constexpr bool has_qualifier = !!(parse<Func>::qualifiers & Qualifier);
 
 }// detail
 
 template<typename Func>
-using result_type = typename detail::make_parser<Func>::result_type;
+using result_type = typename detail::parse<Func>::result_type;
 
 template<typename Func>
-using args_types = typename detail::make_parser<Func>::args_types;
+using args_types = typename detail::parse<Func>::args_types;
 
 template<size_t Pos, typename Func>
 using arg_type_at = std::tuple_element_t<Pos, args_types<Func>>;
@@ -88,34 +89,32 @@ template<typename Func>
 constexpr size_t args_num = std::tuple_size<args_types<Func>>::value;
 
 template<typename Func>
-using mem_func_owner_type = typename detail::make_parser<Func>::owner_type;
+using mem_func_owner = typename detail::parse<Func>::owner_type;
 
 template<typename Func>
-constexpr bool is_const = detail::make_parser<Func>::is_const;
+constexpr bool is_const = detail::has_qualifier<Func, detail::const_>;
 
 template<typename Func>
-constexpr bool is_volatile = detail::make_parser<Func>::is_volatile;
+constexpr bool is_volatile = detail::has_qualifier<Func, detail::volatile_>;
 
 template<typename Func>
-constexpr bool is_member_func = !std::is_same_v<mem_func_owner_type<Func>, detail::non_member_func>;
+constexpr bool is_member_func = !std::is_same_v<mem_func_owner<Func>, detail::non_member_func>;
 
 }// func_traits
 
-#define DEFINE_FUNC_TRAITS_FOR_CALLOPT_WIN_X32(CALL_OPT)                               \
-    template<typename Ret, typename... Args>                                           \
-    struct func_traits::detail::parser<Ret(CALL_OPT *)(Args...)> :                     \
-                    func_traits::detail::parser<Ret(Args...)> {};                      \
-    template<typename T, typename Ret, typename... Args>                               \
-    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...)> :                  \
-                    func_traits::detail::parser<Ret(T::*)(Args...)>{};                 \
-    template<typename T, typename Ret, typename... Args>                               \
-    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) const> :            \
-                    func_traits::detail::parser<Ret(T::*)(Args...) const>{};           \
-    template<typename T, typename Ret, typename... Args>                               \
-    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) volatile> :         \
-                    func_traits::detail::parser<Ret(T::*)(Args...) volatile>{};        \
-    template<typename T, typename Ret, typename... Args>                               \
-    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) const volatile> :   \
-                    func_traits::detail::parser<Ret(T::*)(Args...) const volatile>{};  \
-
-DEFINE_FUNC_TRAITS_FOR_CALLOPT_WIN_X32(CALL_CONV)
+#define DEFINE_FUNC_TRAITS_FOR_CALLOPT(CALL_OPT)                                        \
+    template<typename Ret, typename... Args>                                            \
+    struct func_traits::detail::parser<Ret(CALL_OPT *)(Args...)> :                      \
+        parser<Ret(Args...)> {};                                                        \
+    template<typename T, typename Ret, typename... Args>                                \
+    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...)> :                   \
+        parser<Ret(T::*)(Args...)> {};                                                  \
+    template<typename T, typename Ret, typename... Args>                                \
+    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) const> :             \
+        parser<Ret(T::*)(Args...) const> {};                                            \
+    template<typename T, typename Ret, typename... Args>                                \
+    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) volatile> :          \
+        parser<Ret(T::*)(Args...) volatile> {};                                         \
+    template<typename T, typename Ret, typename... Args>                                \
+    struct func_traits::detail::parser<Ret(CALL_OPT T::*)(Args...) const volatile> :    \
+        parser<Ret(T::*)(Args...) const volatile> {};                                   \
