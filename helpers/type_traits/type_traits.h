@@ -15,8 +15,21 @@ namespace details
 
 template< typename T, typename U = void >
 struct enable_if_type{ using type = U; };
+          
+template<typename T> struct wrap{};
+template<typename... T> struct inherit : wrap<T>...{};
 
 }
+          
+template<typename T>
+struct is
+{
+    template<typename... Types>
+    static constexpr bool any_of = 
+          std::is_base_of<detail::wrap<T>, detail::inherit<Types...>>::value;
+
+    // Add anything related to this type
+};
 
 template< typename >
 struct is_duration : std::false_type{};
