@@ -21,14 +21,12 @@ template<typename... T> struct inherit : wrap<T>...{};
 
 }
           
-template<typename T>
-struct is
+template<typename T, typename... Types>
+struct is_any_of
 {
-    template<typename... Types>
-    static constexpr bool any_of = 
-          std::is_base_of<detail::wrap<T>, detail::inherit<Types...>>::value;
-
-    // Add anything related to this type
+    static constexpr bool any_of{ std::is_base_of<
+              detail::wrap<T>,
+              detail::inherit<Types...>>::value };
 };
 
 template< typename >
